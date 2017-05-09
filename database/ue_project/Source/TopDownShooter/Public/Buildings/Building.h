@@ -1,0 +1,126 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "GameFramework/Actor.h"
+#include "Public/GameTypes.h"
+#include "Public/Interfaces/TeamObjectInterface.h"
+#include "Building.generated.h"
+
+UCLASS(Blueprintable)
+class TOPDOWNSHOOTER_API ABuilding : public AActor, public ITeamObjectInterface, public IUnitPlaceInterface
+{
+	GENERATED_BODY()
+	
+public:	
+	// Sets default values for this actor's properties
+	ABuilding();
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
+	// Called every frame
+	virtual void Tick( float DeltaSeconds ) override;
+
+	virtual int GetTeamNum() const override { return TeamNum; }
+
+	virtual void SetTeamNum(int number) override { TeamNum = number; }
+
+	void SetLevel(int NewLevel);
+
+	int GetLevel() const { return Level; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Building")
+	int GetMaxLevel() const { return MaxLevel; };
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Building")
+	void OnLevelChanged(int NewLevel);
+	
+	UFUNCTION(BlueprintCallable, Category = "Buildibg")
+	void ProcessBuild(class ASimpleWorkerUnit* Unit);
+
+	UFUNCTION(BlueprintCallable, Category = "Buildibg")
+	bool HasCompleted() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Buildibg")
+	bool AddWorker(class ASimpleWorkerUnit* Unit);
+
+	UFUNCTION(BlueprintCallable, Category = "Buildibg")
+	void RemoveWorker(class ASimpleWorkerUnit* Unit);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	bool ContainsWorker(class ASimpleWorkerUnit* Unit);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	bool CanWorkerAdded() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	FItemCeil GetFirstNeeded();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	float GetMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	float GetCurrentHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Buildibg")
+	void Upgrade();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	int GetGradeCost() const;
+
+	virtual void PlaceUnit(class AGameUnit* Unit) override;
+
+	virtual void OnUnplace(class AGameUnit* Unit) override {};
+
+	virtual TArray<class AGameUnit*> GetPlacedUnits() const override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	virtual bool CanBePlaced(class AGameUnit* Unit) const override;
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
+	int MaxWorkerCount;
+
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Building")
+	TArray<FItemCeil> CurrentBuildResources;
+
+	/*
+		Resource list for upgrades
+	*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
+	TArray<FItemList> BuildResources;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
+	TWeakObjectPtr<UTexture2D> Icon;
+
+	USkeletalMesh* GetBuildingMesh();
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Replicated, Category="Building")
+	int Level;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Building")
+	int MaxLevel;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Building")
+	TArray<int> GradeCostList;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "TeamObject")
+	int TeamNum;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Building")
+	float Health;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
+	USkeletalMeshComponent* BuildingMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building")
+	UBoxComponent* BoundingBoxComponent;
+
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Building")
+	TArray<class ASimpleWorkerUnit*> Workers;
+
+private:
+
+	bool CheckWorkerNecessity(class ASimpleWorkerUnit*) const;
+};

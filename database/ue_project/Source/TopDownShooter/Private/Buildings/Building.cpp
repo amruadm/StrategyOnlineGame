@@ -37,8 +37,6 @@ void ABuilding::Tick( float DeltaTime )
 void ABuilding::SetLevel(int NewLevel)
 {
 	Level = NewLevel;
-	if (BuildResources.IsValidIndex(Level))
-		CurrentBuildResources = BuildResources[Level - 1].Resources;
 	
 	OnLevelChanged(NewLevel);
 }
@@ -54,7 +52,7 @@ void ABuilding::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLife
 	DOREPLIFETIME(ABuilding, TeamNum);
 	DOREPLIFETIME(ABuilding, Level);
 	DOREPLIFETIME(ABuilding, Workers);
-	DOREPLIFETIME(ABuilding, CurrentBuildResources);
+	DOREPLIFETIME(ABuilding, BuildResources);
 	DOREPLIFETIME(ABuilding, Health);
 }
 
@@ -69,29 +67,36 @@ USkeletalMesh* ABuilding::GetBuildingMesh()
 
 void ABuilding::ProcessBuild(ASimpleWorkerUnit* Unit)
 {
-	for (FItemCeil & item : CurrentBuildResources)
+	for (FBuildingItemCeil & Item : BuildResources)
 	{
-		int c = Unit->TakeItemsOfClass(item.ItemClass, 1);
-		if (c == 1) return;
+		if (Item.CurrentCount >= Item.Count) continue;
+		int c = Unit->TakeItemsOfClass(Item.ItemClass, 1);
+		if (c == 1)
+		{
+			Item.CurrentCount++;
+		}
 	}
 }
 
 FItemCeil ABuilding::GetFirstNeeded()
 {
-
-	for (auto item : CurrentBuildResources)
+	for (const FBuildingItemCeil & Item : BuildResources)
 	{
-		if (item.Count > 0) return item;
+		if (Item.CurrentCount < Item.Count)
+		{
+			return Item;
+		}
 	}
+	
 	return FItemCeil::EmptyItem;
 }
 
 bool ABuilding::HasCompleted() const
 {
 	bool res = true;
-	for (auto item : CurrentBuildResources)
+	for (auto Item : BuildResources)
 	{
-		res &= item.Count <= 0;
+		res &= Item.CurrentCount >= Item.Count;
 	}
 	return res;
 }
@@ -161,6 +166,16 @@ int ABuilding::GetGradeCost_Implementation() const
 	if (GradeCostList.IsValidIndex(Level))
 	{
 		return GradeCostList[Level];
+	}
+	return 0;
+}
+
+int ABuilding::GetRequiredResourceCount(TSubclassOf<UItem> ItemClass) const
+{
+	for (auto Item : BuildResources)
+	{
+		if (Item.ItemClass == ItemClass)
+			return Item.Count - Item.CurrentCount;
 	}
 	return 0;
 }

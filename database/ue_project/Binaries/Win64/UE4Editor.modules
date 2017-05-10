@@ -3,7 +3,7 @@
 	"BuildId" : "ca8f7882-b197-4923-b505-09e5dce79b03",
 	"Modules" : 
 	{
-		"TopDownShooter" : "UE4Editor-TopDownShooter-7344.dll",
-		"LibNoise" : "UE4Editor-LibNoise-7262.dll"
+		"TopDownShooter" : "UE4Editor-TopDownShooter.dll",
+		"LibNoise" : "UE4Editor-LibNoise.dll"
 	}
 }

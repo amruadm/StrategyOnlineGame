@@ -20,12 +20,14 @@ public:
 
 	virtual int GetInventorySize_Implementation() const override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="SimpleWorker")
 	virtual TArray<FItemCeil> GetItems() const override { return Items; }
 
 	virtual int GiveResourceFrom(struct FItemCeil & Item, int Count) override;
 
 	virtual int TakeItemsOfClass(TSubclassOf<UItem> ItemClass, int Count) override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SimpleWorker")
 	virtual bool ContainsItemOfClass(TSubclassOf<UItem> ItemClass, int Count = 0) const override;
 		
 protected:

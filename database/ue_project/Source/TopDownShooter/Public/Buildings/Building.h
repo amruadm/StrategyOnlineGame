@@ -7,6 +7,18 @@
 #include "Public/Interfaces/TeamObjectInterface.h"
 #include "Building.generated.h"
 
+USTRUCT(BlueprintType)
+struct FBuildingItemCeil : public FItemCeil
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	int CurrentCount;
+
+	UPROPERTY(EditDefaultsOnly)
+	int Level;
+};
+
 UCLASS(Blueprintable)
 class TOPDOWNSHOOTER_API ABuilding : public AActor, public ITeamObjectInterface, public IUnitPlaceInterface
 {
@@ -77,18 +89,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
 	virtual bool CanBePlaced(class AGameUnit* Unit) const override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	int GetRequiredResourceCount(TSubclassOf<class UItem> ItemClass) const;
 		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
 	int MaxWorkerCount;
 
-	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Building")
-	TArray<FItemCeil> CurrentBuildResources;
-
 	/*
 		Resource list for upgrades
 	*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
-	TArray<FItemList> BuildResources;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Building")
+	TArray<FBuildingItemCeil> BuildResources;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
 	TWeakObjectPtr<UTexture2D> Icon;

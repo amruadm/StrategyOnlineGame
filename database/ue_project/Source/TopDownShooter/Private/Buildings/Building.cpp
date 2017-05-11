@@ -9,7 +9,7 @@
 // Sets default values
 ABuilding::ABuilding()
 {
-	BoundingBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoundingBox"));
+	RootComponent = BoundingBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoundingBox"));
 
 	BuildingMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BuildingMesh"));
 	//BuildingMeshComponent->SetSkeletalMesh(BuildingMesh.Get(), true);
@@ -146,7 +146,7 @@ TArray<AGameUnit*> ABuilding::GetPlacedUnits() const { return TArray<AGameUnit*>
 bool ABuilding::CanBePlaced(AGameUnit* Unit) const { return false; }
 
 /*
-	!!!!!!!!!!!!!!!!!!! ƒŒœ»À»“‹!!!
+	!!!!!!!!!!!!!!!!!!! √Ñ√é√è√à√ã√à√í√ú!!!
 */
 bool ABuilding::CheckWorkerNecessity(ASimpleWorkerUnit* Worker) const
 {

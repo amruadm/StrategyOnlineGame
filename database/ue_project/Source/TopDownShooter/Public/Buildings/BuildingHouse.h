@@ -30,9 +30,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildingHouse")
 	float SpawnTimeInterval;
 
-	int MaxCitizens;
-
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="BuildingHouse")
+	int MaxCitizens;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildingHouse")
 	UVectorFieldComponent* SpawnPoint;

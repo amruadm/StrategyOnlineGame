@@ -172,3 +172,13 @@ void AGameUnit::ProcessAttack()
 {
 	
 }
+
+void AGameUnit::Selected_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Pawn Selected");
+}
+
+void AGameUnit::Unselected_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Pawn unselected");
+}

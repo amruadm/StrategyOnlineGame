@@ -22,8 +22,10 @@ public:
 
 	virtual int GetStorageSize() const override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Warehouse")
 	virtual int ContainsItemOfClass(TSubclassOf<class UItem> ResourceClass) const override;
 
+	UFUNCTION(BlueprintCallable, Category = "Warehouse")
 	virtual FItemCeil TakeItemOfClass(TSubclassOf<class UItem> ResourceClass, int Count) override;
 
 	UFUNCTION(BlueprintCallable, Category="Warehouse")

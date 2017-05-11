@@ -30,7 +30,7 @@ int ASimpleWorkerUnit::GetInventorySize_Implementation() const
 	return 1;
 }
 
-int ASimpleWorkerUnit::GiveResourceFrom(FItemCeil & Item, int Count)
+int ASimpleWorkerUnit::GiveResourceFrom(FItemCeil Item, int Count)
 {
 	int cnt = Count;
 	for (FItemCeil & item : Items)

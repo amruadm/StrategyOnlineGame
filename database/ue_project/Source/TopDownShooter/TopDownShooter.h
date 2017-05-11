@@ -10,6 +10,7 @@
 #include "Public/Common/MathHelpers.h"
 #include "Public/GameTypes.h"
 #include "Public/GameHelpers.h"
+#include "Public/Interfaces/Selectable.h"
 #include "Public/Interfaces/TeamObjectInterface.h"
 #include "Public/Interfaces/StorageInterface.h"
 #include "Public/Interfaces/WorkerInterface.h"

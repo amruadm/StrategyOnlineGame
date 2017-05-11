@@ -23,7 +23,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="SimpleWorker")
 	virtual TArray<FItemCeil> GetItems() const override { return Items; }
 
-	virtual int GiveResourceFrom(struct FItemCeil & Item, int Count) override;
+	UFUNCTION(BlueprintCallable, Category = "SimpleWorker")
+	virtual int GiveResourceFrom(struct FItemCeil Item, int Count) override;
 
 	virtual int TakeItemsOfClass(TSubclassOf<UItem> ItemClass, int Count) override;
 

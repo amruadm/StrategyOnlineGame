@@ -21,6 +21,10 @@ public:
 
 	virtual void SetTeamNum(int number) override { TeamNum = number; }
 
+	void SelectUnits(TArray<APawn*> Units);
+
+	void UnselectAll();
+
 	UFUNCTION(BlueprintCallable, Category = "PlayerController")
 	void BeginSampleBuilding(TSubclassOf<class ABuilding> BuildingClass);
 
@@ -58,6 +62,8 @@ protected:
 
 	bool IsSamplingBuild;
 	bool IsRMouseDown;
+
+	TArray<APawn*> SelectedUnits;
 
 	UFUNCTION(Client, Reliable)
 	void ClientChangeMode();

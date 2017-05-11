@@ -15,8 +15,18 @@ class TOPDOWNSHOOTER_API AGameHUD : public AHUD
 	
 public:
 
+	AGameHUD();
+
 	virtual void DrawHUD() override;
 
 	UFUNCTION(BlueprintNativeEvent, Category="Input")
 	bool OnToggleHeroInventory();
+
+protected:
+
+	bool bSelection;
+	FVector2D SelectionStartPos;
+	class ATopDownShooterPlayerController* PlayerController;
+
+	void Select(FVector2D StartPos, FVector2D EndPos);
 };

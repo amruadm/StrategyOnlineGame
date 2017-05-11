@@ -428,3 +428,30 @@ void ATopDownShooterPlayerController::EndSampleBuilding()
 		ABuildingSampler::GetInstance(GetWorld())->SetActorHiddenInGame(true);
 	}
 }
+
+void ATopDownShooterPlayerController::UnselectAll()
+{
+	for (auto Pawn : SelectedUnits)
+	{
+		ISelectable* Selectable = Cast<ISelectable>(Pawn);
+		if (Selectable)
+		{
+			Selectable->Execute_Unselected(Pawn);
+		}
+	}
+	SelectedUnits.Empty();
+}
+
+void ATopDownShooterPlayerController::SelectUnits(TArray<APawn*> Units)
+{
+	UnselectAll();
+	SelectedUnits = Units;
+	for (auto Pawn : SelectedUnits)
+	{
+		ISelectable* Selectable = Cast<ISelectable>(Pawn);
+		if (Selectable)
+		{
+			Selectable->Execute_Selected(Pawn);
+		}
+	}
+}

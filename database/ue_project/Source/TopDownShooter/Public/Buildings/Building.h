@@ -99,7 +99,7 @@ public:
 	/*
 		Resource list for upgrades
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Building")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, replicated, Category = "Building")
 	TArray<FBuildingItemCeil> BuildResources;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")

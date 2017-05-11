@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Public/Interfaces/Selectable.h"
 #include "Public/Interfaces/TeamObjectInterface.h"
 #include "GameFramework/Character.h"
 #include "Runtime/Engine/Public/EditorSupportDelegates.h"
@@ -10,7 +11,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FProcessDelegate, EGameUnitAction, ActionType);
 
 UCLASS(Blueprintable, abstract)
-class TOPDOWNSHOOTER_API AGameUnit : public ACharacter, public ITeamObjectInterface
+class TOPDOWNSHOOTER_API AGameUnit : public ACharacter, public ITeamObjectInterface, public ISelectable
 {
 	GENERATED_BODY()
 
@@ -105,6 +106,10 @@ public:
 
 	UFUNCTION()
 	void PlayRandomAnimation(EGameUnitAction AnimActionType);
+
+	//--------Selecable iface
+	virtual void Selected_Implementation() override;
+	virtual void Unselected_Implementation() override;
 
 private:
 

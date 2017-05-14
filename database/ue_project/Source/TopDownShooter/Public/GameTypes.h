@@ -12,7 +12,7 @@ struct FItemCeilBase
 
 public:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int Count;
 };
 
@@ -32,7 +32,7 @@ struct FItemCeil : public FItemCeilBase
 		ItemClass = item;
 	}
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class UItem> ItemClass;
 
 	static FItemCeil EmptyItem;
@@ -140,4 +140,26 @@ struct FResourceItemCeil : public FItemCeilBase
 
 	UPROPERTY()
 	TSubclassOf<class UResourceItem> ItemClass;
+};
+
+USTRUCT(BlueprintType)
+struct FCommandBase
+{
+	GENERATED_BODY()
+
+	/*Command Instigator*/
+	UPROPERTY()
+	AController* Controller = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FCommandTarget: public FCommandBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FVector TargetPosition = FVector(0);
+
+	UPROPERTY()
+	AActor* TargetActor = nullptr;
 };

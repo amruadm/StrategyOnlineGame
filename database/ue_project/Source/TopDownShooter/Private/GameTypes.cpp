@@ -7,6 +7,7 @@ FItemCeil FItemCeil::EmptyItem = FItemCeil(0, nullptr);
 
 int FItemCeil::GetMaxStack() const
 {
+	if (!ItemClass) return 0;
 	UItem* item = ItemClass->GetDefaultObject<UItem>();
 	if (item)
 	{

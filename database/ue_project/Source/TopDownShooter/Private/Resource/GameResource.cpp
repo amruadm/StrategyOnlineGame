@@ -68,8 +68,8 @@ void AGameResource::ProcessExtract(AWorkerUnit* Unit)
 	{
 
 		int cnt = GetExtractionCount(Unit);
-		FItemCeil item(Count, ItemClass);
-		Unit->GiveResourceFrom(item, cnt);
+		FItemCeil item(cnt, ItemClass);
+		Unit->GiveResourceFrom(item);
 		Count = FMath::Max(0, Count - cnt);
 		Unit->ProcessAction(ProcessAnimType);
 		if (Count <= 0)

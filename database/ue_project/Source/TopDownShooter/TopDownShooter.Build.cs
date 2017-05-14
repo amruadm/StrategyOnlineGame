@@ -11,9 +11,15 @@ public class TopDownShooter : ModuleRules
 
     public TopDownShooter(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "RHI", "RenderCore", "ShaderCore", "LibNoise" });
-        AddLib(Target, "Lua", "lua5.1.lib", "lua5.1.lib");
-        AddLib(Target, "Postgres", "libpq.lib", "libpq.lib");
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "RHI", "RenderCore", "ShaderCore" });        
+
+        //PublicDependencyModuleNames.Add("LibNoise");
+
+        if (UEBuildConfiguration.bWithServerCode == true)
+        {
+            //AddLib(Target, "Lua", "lua5.1.lib", "lua5.1.lib");
+            //AddLib(Target, "Postgres", "libpq.lib", "libpq.lib");
+        }        
     }
 
     private void AddLib(TargetInfo Target, string libFolderName, string libName86, string libName64)

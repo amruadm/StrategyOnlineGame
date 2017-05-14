@@ -93,6 +93,9 @@ public:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Events")
 	bool isProcessing;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameUnit")
+	UTexture2D* Icon;
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
 	virtual void Die(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser);
@@ -110,6 +113,9 @@ public:
 	//--------Selecable iface
 	virtual void Selected_Implementation() override;
 	virtual void Unselected_Implementation() override;
+	virtual void SetTargetPoint_Implementation(const FCommandTarget & Target) override {};
+	virtual bool CanBeMultipleSelected_Implementation() override { return false; }
+	virtual struct FControlData GetUIData_Implementation() override;
 
 private:
 

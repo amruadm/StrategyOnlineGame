@@ -3,6 +3,7 @@
 #include "TopDownShooter.h"
 #include "Public/HUD/GameHUD.h"
 #include "TopDownShooterPlayerController.h"
+#include "Public/Buildings/Building.h"
 
 AGameHUD::AGameHUD()
 {
@@ -24,7 +25,6 @@ void AGameHUD::DrawHUD()
 	PlayerController = Cast<ATopDownShooterPlayerController>(GetOwningPlayerController());
 	if (!PlayerController) return;
 
-	FVector2D MousePosition;
 	PlayerController->GetMousePosition(MousePosition.X, MousePosition.Y);
 
 	FVector2D ScreenSize;
@@ -49,25 +49,76 @@ void AGameHUD::DrawHUD()
 		SelectionBox.SetColor(FLinearColor(0.0f, 1.0f, 0.0f, 0.5f));
 		Canvas->DrawItem(SelectionBox);
 	}
-
 }
 
 void AGameHUD::Select(FVector2D StartPos, FVector2D EndPos)
 {
-	TArray<APawn*> Pawns;
-	TArray<APawn*> OutSelectablePawns;
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Select");
-	if (GetActorsInSelectionRectangle<APawn>(StartPos, EndPos, Pawns, true))
+	TArray<AActor*> Actors;
+	TArray<AActor*> OutSelectableActors;
+	TArray<AActor*> PendingToSelectActors;
+
+	if (FVector2D::Distance(StartPos, EndPos) < 10.0f)
 	{
-		for (auto Pawn : Pawns)
+		FHitResult HitResult;
+		if (PlayerController->GetHitResultUnderCursor(ECC_WorldDynamic, false, HitResult))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "PAWN!");
-			ISelectable* Selectable = Cast<ISelectable>(Pawn);
-			if (Selectable)
-			{				
-				OutSelectablePawns.Add(Pawn);
+			if (Cast<ISelectable>(HitResult.Actor.Get()))
+			{
+				if(APawn* Pawn = Cast<APawn>(HitResult.Actor.Get()))
+					PendingToSelectActors.Add(Pawn);
 			}
 		}
 	}
-	PlayerController->SelectUnits(OutSelectablePawns);
+	else
+	{
+		if (GetActorsInSelectionRectangle<AActor>(StartPos, EndPos, Actors, true))
+		{
+			for (auto Pawn : Actors)
+			{
+				ISelectable* Selectable = Cast<ISelectable>(Pawn);
+				if (Selectable)
+				{
+					PendingToSelectActors.Add(Pawn);
+				}
+			}
+		}
+	}
+	if (PendingToSelectActors.Num() > 1)
+	{
+		for (auto Pawn : PendingToSelectActors)
+		{
+			if (ISelectable* Selectable = Cast<ISelectable>(Pawn))
+			{
+				if (Selectable->Execute_CanBeMultipleSelected(Pawn))
+					OutSelectableActors.Add(Pawn);
+			}
+		}
+	}
+	else
+	{
+		OutSelectableActors = PendingToSelectActors;
+	}
+	PlayerController->SelectUnits(OutSelectableActors);
+}
+
+void AGameHUD::DrawBuildingItem(FVector2D Position, float Size, TSubclassOf<class ABuilding> BuildingClass)
+{
+	if (ABuilding* BuildingObject = BuildingClass->GetDefaultObject<ABuilding>())
+	{
+		DrawTexture(BuildingObject->Icon, Position.X, Position.Y, Size, Size, 0.0f, 0.0f, 1.0f, 1.0f);
+		if (IsMouseOverlapp(Position, FVector2D(Size, Size)) && HasMouseClicked())
+		{
+			PlayerController->BeginSampleBuilding(BuildingClass);
+		}
+	}
+}
+
+bool AGameHUD::IsMouseDown() const
+{
+	return PlayerController->IsInputKeyDown(EKeys::LeftMouseButton);
+}
+
+bool AGameHUD::HasMouseClicked() const
+{
+	return PlayerController->WasInputKeyJustPressed(EKeys::LeftMouseButton);
 }

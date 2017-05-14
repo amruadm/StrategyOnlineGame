@@ -9,8 +9,13 @@ void ABuildingWarehouse::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Resources.Empty();
-	Resources.AddDefaulted(GetStorageSize());
+	ResizeStorage();
+}
+
+void ABuildingWarehouse::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(ABuildingWarehouse, Resources, COND_OwnerOnly);
 }
 
 TArray<FItemCeil> ABuildingWarehouse::GetItems() const
@@ -69,4 +74,25 @@ int ABuildingWarehouse::PlaceItem(FItemCeil & Item)
 void ABuildingWarehouse::OnLevelChanged_Implementation(int NewLevel)
 {
 
+}
+
+void ABuildingWarehouse::ResizeStorage()
+{	
+	Resources.SetNum(GetStorageSize());
+}
+
+FControlData ABuildingWarehouse::GetUIData_Implementation()
+{
+	FControlData Result;
+	Result.Storage.bGroupEnabled = true;
+
+	for (FItemCeil Item : Resources)
+	{
+		FItemElement Elem;
+		Elem.ItemClass = Item.ItemClass;		
+		Elem.Count = Item.Count;
+		Result.Storage.StorageElements.Add(Elem);
+	}
+
+	return Result;
 }

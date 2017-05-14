@@ -20,20 +20,12 @@ void ABuildingHouse::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Ou
 
 void ABuildingHouse::BeginPlay()
 {
-	Super::BeginPlay();
-	if (Role == ROLE_Authority)
-	{		
-		FTimerDelegate SpawnDelegate = FTimerDelegate::CreateLambda([=]()
-		{
-			this->SpawnCitizen();
-		});
-		GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpawnTimeInterval, true);
-	}
+	Super::BeginPlay();	
 }
 
 void ABuildingHouse::SpawnCitizen()
 {
-	if (Role == ROLE_Authority)
+	if (HasAuthority())
 	{
 		if (Citizens.Num() < MaxCitizens && HasCompleted())
 		{
@@ -47,5 +39,17 @@ void ABuildingHouse::SpawnCitizen()
 				Citizens.Add(newUnit);
 			}
 		}
+	}
+}
+
+void ABuildingHouse::OnBuildingComplete_Implementation()
+{
+	if (HasAuthority())
+	{
+		FTimerDelegate SpawnDelegate = FTimerDelegate::CreateLambda([=]()
+		{
+			this->SpawnCitizen();
+		});
+		GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpawnTimeInterval, true);
 	}
 }

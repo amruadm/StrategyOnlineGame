@@ -17,6 +17,7 @@ void ASimpleWorkerUnit::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ASimpleWorkerUnit, Items);
+	DOREPLIFETIME(ASimpleWorkerUnit, TargetBuilding);
 }
 
 void ASimpleWorkerUnit::PlaceResource(IStorageInterface* Storage, int Index)
@@ -30,9 +31,9 @@ int ASimpleWorkerUnit::GetInventorySize_Implementation() const
 	return 1;
 }
 
-int ASimpleWorkerUnit::GiveResourceFrom(FItemCeil Item, int Count)
+int ASimpleWorkerUnit::GiveResourceFrom(FItemCeil Item)
 {
-	int cnt = Count;
+	int cnt = Item.Count;
 	for (FItemCeil & item : Items)
 	{
 		if (item.ItemClass == Item.ItemClass || !item.ItemClass)
@@ -96,5 +97,20 @@ bool ASimpleWorkerUnit::ContainsItemOfClass(TSubclassOf<UItem> ItemClass, int Co
 
 void ASimpleWorkerUnit::ResizeInventory(int NewSize)
 {
-	Items.SetNumZeroed(NewSize);
+	Items.SetNum(NewSize);
+}
+
+bool ASimpleWorkerUnit::SetTargetBuilding(ABuilding* NewTarget)
+{
+	if (!NewTarget) return false;
+	if (TargetBuilding)
+	{
+		TargetBuilding->RemoveWorker(this);
+	}
+	if (NewTarget->AddWorker(this))
+	{
+		TargetBuilding = NewTarget;
+		return true;
+	}
+	return false;
 }

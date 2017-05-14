@@ -175,10 +175,31 @@ void AGameUnit::ProcessAttack()
 
 void AGameUnit::Selected_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Pawn Selected");
+	if (USkeletalMeshComponent* Mesh = GetMesh())
+	{
+		Mesh->SetRenderCustomDepth(true);
+		if (ITeamObjectInterface* TeamObject = Cast<ITeamObjectInterface>(GetWorld()->GetFirstPlayerController()))
+		{
+			if (TeamObject->GetTeamNum() == TeamNum)
+			{
+				Mesh->SetCustomDepthStencilValue(STENCIL_FRIENDLY);
+				return;
+			}
+		}
+		Mesh->SetCustomDepthStencilValue(STENCIL_ENEMY);
+	}
 }
 
 void AGameUnit::Unselected_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Pawn unselected");
+	if (USkeletalMeshComponent* Mesh = GetMesh())
+	{
+		Mesh->SetRenderCustomDepth(false);		
+		
+	}
+}
+
+FControlData AGameUnit::GetUIData_Implementation()
+{
+	return FControlData();
 }

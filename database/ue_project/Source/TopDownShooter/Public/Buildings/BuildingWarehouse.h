@@ -32,14 +32,17 @@ public:
 	virtual int PlaceItem(FItemCeil & Item) override;
 
 	virtual void OnLevelChanged_Implementation(int NewLevel) override;
+
+	virtual FControlData GetUIData_Implementation() override;
 	
 protected:
 
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Warehouse")
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Warehouse")
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category = "Warehouse")
 	TArray<FItemCeil> Resources;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Warehouse")
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Warehouse")
 	int StorageSize;
 	
+	void ResizeStorage();
 };

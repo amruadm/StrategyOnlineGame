@@ -3,6 +3,8 @@
 #include "GameFramework/PlayerController.h"
 #include "TopDownShooterPlayerController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSelectDelegate, const TArray<TScriptInterface<class ISelectable>> &, Selected);
+
 UCLASS(Blueprintable)
 class ATopDownShooterPlayerController : public APlayerController, public ITeamObjectInterface
 {
@@ -21,7 +23,13 @@ public:
 
 	virtual void SetTeamNum(int number) override { TeamNum = number; }
 
-	void SelectUnits(TArray<APawn*> Units);
+	void SelectUnits(TArray<AActor*> Units);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayerController")
+	TArray<AActor*> GetSelectedUnits() const
+	{
+		return SelectedUnits;
+	}
 
 	void UnselectAll();
 
@@ -47,7 +55,12 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	FVector StartLMouseMoveLocation;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FSelectDelegate OnSelected;
 protected:
+
+	UParticleSystem* TargetPointParticles;
 
 	UPROPERTY(Replicated)
 	int TeamNum;
@@ -63,7 +76,7 @@ protected:
 	bool IsSamplingBuild;
 	bool IsRMouseDown;
 
-	TArray<APawn*> SelectedUnits;
+	TArray<AActor*> SelectedUnits;
 
 	UFUNCTION(Client, Reliable)
 	void ClientChangeMode();
@@ -74,18 +87,6 @@ protected:
 	virtual void SetupInputComponent() override;
 	// End PlayerController interface
 
-	/** Navigate player to the current mouse cursor location. */
-	void MoveToMouseCursor();
-
-	/** Navigate player to the current touch location. */
-	void MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location);
-	
-	/** Navigate player to the given world location. */
-	void SetNewMoveDestination(const FVector DestLocation);
-
-	/** Input handlers for SetDestination action. */
-	void OnSetDestinationPressed();
-	void OnSetDestinationReleased();
 
 	void OnAttackPressed();
 	void OnAttackReleased();
@@ -106,6 +107,11 @@ protected:
 
 	UFUNCTION()
 	void OnRep_CamMode();	
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerCommandTarget(const TArray<AActor*> & CommandUnits, struct FCommandTarget Target);
+	virtual void ServerCommandTarget_Implementation(const TArray<AActor*> & CommandUnits, struct FCommandTarget Target);
+	virtual bool ServerCommandTarget_Validate(const TArray<AActor*> & CommandUnits, struct FCommandTarget Target);
 };
 
 

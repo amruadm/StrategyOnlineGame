@@ -13,8 +13,8 @@ USpectratorCameraComponent::USpectratorCameraComponent()
 	MaxZoomLevel = 1.0f;
 	MiniMapBoundsLimit = 0.8f;
 	FixedCameraAngle = FRotator(-45.0f, 0.0f, 0.0f);
-	MaxCameraOffset = 1000.0f;
-	MinCameraOffset = 700.0f;
+	MaxCameraOffset = 2000.0f;
+	MinCameraOffset = 1400.0f;
 }
 
 void USpectratorCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)

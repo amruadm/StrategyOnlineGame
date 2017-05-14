@@ -13,7 +13,9 @@ class TOPDOWNSHOOTER_API AWarrirorUnit : public ACitizenUnit
 {
 	GENERATED_BODY()
 	
-	
-	
+public:
+
+	virtual void SetTargetPoint_Implementation(const struct FCommandTarget & Target) override;
+	virtual bool CanBeMultipleSelected_Implementation() override { return true; }
 	
 };

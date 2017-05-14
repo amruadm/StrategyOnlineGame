@@ -27,5 +27,12 @@
 #define WORLD_CELL_SZ 500.0f
 #define BUILDING_CELL_SZ 100.0f
 
+//Units
+#define TARGET_MOVE_DISTANCE 120.0f
+
+//Stencil values
+#define STENCIL_FRIENDLY 0
+#define STENCIL_ENEMY 1
+
 #endif
 

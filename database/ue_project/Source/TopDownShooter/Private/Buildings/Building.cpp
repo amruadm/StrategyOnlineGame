@@ -9,7 +9,7 @@
 // Sets default values
 ABuilding::ABuilding()
 {
-	RootComponent = BoundingBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoundingBox"));
+	BoundingBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoundingBox"));
 
 	BuildingMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BuildingMesh"));
 	//BuildingMeshComponent->SetSkeletalMesh(BuildingMesh.Get(), true);
@@ -25,6 +25,10 @@ void ABuilding::BeginPlay()
 {
 	Super::BeginPlay();
 	SetLevel(1);
+	if (HasCompleted())
+	{
+		OnBuildingComplete();
+	}
 }
 
 // Called every frame
@@ -67,6 +71,7 @@ USkeletalMesh* ABuilding::GetBuildingMesh()
 
 void ABuilding::ProcessBuild(ASimpleWorkerUnit* Unit)
 {
+	if (HasCompleted()) return;
 	for (FBuildingItemCeil & Item : BuildResources)
 	{
 		if (Item.CurrentCount >= Item.Count) continue;
@@ -75,6 +80,10 @@ void ABuilding::ProcessBuild(ASimpleWorkerUnit* Unit)
 		{
 			Item.CurrentCount++;
 		}
+	}
+	if (HasCompleted())
+	{
+		OnBuildingComplete();
 	}
 }
 
@@ -93,17 +102,13 @@ FItemCeil ABuilding::GetFirstNeeded()
 
 bool ABuilding::HasCompleted() const
 {
-	bool res = true;
-	for (auto Item : BuildResources)
-	{
-		res &= Item.CurrentCount >= Item.Count;
-	}
-	return res;
+	return GetBuildProgress() >= 1.0f;
 }
 
 bool ABuilding::AddWorker(ASimpleWorkerUnit* Unit)
 {
-	if (Workers.Num() < MaxWorkerCount)
+	if (!Unit) return false;
+	if (CanWorkerAdded() && Unit->GetTeamNum() == TeamNum)
 	{
 		int i = 0;
 		if(!ContainsWorker(Unit))
@@ -146,7 +151,7 @@ TArray<AGameUnit*> ABuilding::GetPlacedUnits() const { return TArray<AGameUnit*>
 bool ABuilding::CanBePlaced(AGameUnit* Unit) const { return false; }
 
 /*
-	!!!!!!!!!!!!!!!!!!! √Ñ√é√è√à√ã√à√í√ú!!!
+	!!!!!!!!!!!!!!!!!!! ƒŒœ»À»“‹!!!
 */
 bool ABuilding::CheckWorkerNecessity(ASimpleWorkerUnit* Worker) const
 {
@@ -178,4 +183,52 @@ int ABuilding::GetRequiredResourceCount(TSubclassOf<UItem> ItemClass) const
 			return Item.Count - Item.CurrentCount;
 	}
 	return 0;
+}
+
+void ABuilding::Selected_Implementation()
+{
+	if (BuildingMeshComponent)
+	{
+		BuildingMeshComponent->SetRenderCustomDepth(true);
+		if (ITeamObjectInterface* TeamObject = Cast<ITeamObjectInterface>(GetWorld()->GetFirstPlayerController()))
+		{
+			if (TeamObject->GetTeamNum() == TeamNum)
+			{
+				BuildingMeshComponent->SetCustomDepthStencilValue(STENCIL_FRIENDLY);
+				return;
+			}
+		}
+		BuildingMeshComponent->SetCustomDepthStencilValue(STENCIL_ENEMY);
+	}
+}
+
+void ABuilding::Unselected_Implementation()
+{
+	if (BuildingMeshComponent)
+	{
+		BuildingMeshComponent->SetRenderCustomDepth(false);
+	}
+}
+
+FControlData ABuilding::GetUIData_Implementation()
+{
+	FControlData Result;
+	Result.Queues.bGroupEnabled = false;
+	Result.Settings.bGroupEnabled = false;
+	Result.Storage.bGroupEnabled = false;
+	Result.Trading.bGroupEnabled = false;
+	return Result;
+}
+
+float ABuilding::GetBuildProgress() const
+{
+	int NeededCount = 0;
+	int BuildedCount = 0;
+	for (auto Item : BuildResources)
+	{
+		BuildedCount += Item.CurrentCount;
+		NeededCount += Item.Count;
+	}
+	if (NeededCount == 0) return 1.0f;
+	return (float)BuildedCount / (float)NeededCount;
 }

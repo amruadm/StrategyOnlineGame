@@ -26,7 +26,7 @@ public:
 	
 	virtual TArray<FItemCeil> GetItems() const = 0;	
 
-	virtual int GiveResourceFrom(struct FItemCeil Item, int Count) = 0;
+	virtual int GiveResourceFrom(struct FItemCeil Item) = 0;
 
 	/*
 		@return num of taked items

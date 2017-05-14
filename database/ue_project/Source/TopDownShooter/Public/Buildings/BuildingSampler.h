@@ -24,6 +24,10 @@ public:
 
 	void SetMesh(USkeletalMesh* SamplerMesh);
 
+	void SetColor(FColor Color);
+
+	void SetMeshScale(FVector Scale);
+
 	TSubclassOf<class ABuilding> BuildingClass;
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Building Sampler"), Category = "Building")

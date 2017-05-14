@@ -24,14 +24,29 @@ public:
 	virtual TArray<FItemCeil> GetItems() const override { return Items; }
 
 	UFUNCTION(BlueprintCallable, Category = "SimpleWorker")
-	virtual int GiveResourceFrom(struct FItemCeil Item, int Count) override;
+	virtual int GiveResourceFrom(struct FItemCeil Item) override;
 
 	virtual int TakeItemsOfClass(TSubclassOf<UItem> ItemClass, int Count) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SimpleWorker")
 	virtual bool ContainsItemOfClass(TSubclassOf<UItem> ItemClass, int Count = 0) const override;
+
+	/*
+		return true if worker attached to building
+	*/
+	UFUNCTION(BlueprintCallable, Category = "SimpleWorker")
+	bool SetTargetBuilding(ABuilding* NewTarget);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SimpleWorker")
+	class ABuilding* GetTargetBuilding() const
+	{
+		return TargetBuilding;
+	}
 		
 protected:
+
+	UPROPERTY(Replicated)
+	class ABuilding* TargetBuilding;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category="SimpleWorker")
 	TArray<struct FItemCeil> Items;

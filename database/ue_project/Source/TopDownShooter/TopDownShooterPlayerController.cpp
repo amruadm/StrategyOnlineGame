@@ -29,6 +29,9 @@ ATopDownShooterPlayerController::ATopDownShooterPlayerController()
 	IsSamplingBuild = false;
 	LastOverlaped = nullptr;
 	IsRMouseDown = false;
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> TargetPointParticlesFinder(TEXT("/Game/Particles/PS_TargetPoint"));
+	TargetPointParticles = TargetPointParticlesFinder.Object;
 }
 
 void ATopDownShooterPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -104,38 +107,26 @@ void ATopDownShooterPlayerController::PlayerTick(float DeltaTime)
 			//StrategyPawn->GetStrategyCameraComponent()->UpdateCameraMovement(this);
 		}
 		
-		if (IsStrategyMode())
+		if (IsSamplingBuild && ABuildingSampler::GetInstance(GetWorld()))
 		{
-			// Strategy mode
-			if (IsSamplingBuild && ABuildingSampler::GetInstance(GetWorld()))
+			// Setting build location
+			if (IsRMouseDown)
 			{
-				// Setting build location
-				if (IsRMouseDown)
-				{
-					float dx = 0;
-					float dy = 0;
-					GetInputMouseDelta(dx, dy);
-					ABuildingSampler* s = ABuildingSampler::GetInstance(GetWorld());
-					s->SetActorRotation(s->GetActorRotation() + FRotator(0.0f, -dx * 20, 0.0f));
-				}
-				else
-				{
-					FHitResult Hit;
-					GetHitResultUnderCursor(ECC_WorldStatic, true, Hit);
-					if (Hit.bBlockingHit && Hit.GetActor())
-					{
-						ABuildingSampler::GetInstance(GetWorld())->SetActorLocation(Hit.Location);
-					}
-				}
+				float dx = 0;
+				float dy = 0;
+				GetInputMouseDelta(dx, dy);
+				ABuildingSampler* s = ABuildingSampler::GetInstance(GetWorld());
+				s->SetActorRotation(s->GetActorRotation() + FRotator(0.0f, -dx * 20, 0.0f));
 			}
 			else
 			{
-				
+				FHitResult Hit;
+				GetHitResultUnderCursor(ECC_WorldStatic, true, Hit);
+				if (Hit.bBlockingHit && Hit.GetActor())
+				{
+					ABuildingSampler::GetInstance(GetWorld())->SetActorLocation(Hit.Location);
+				}
 			}
-		}
-		else
-		{
-			// Hero mode
 		}
 	}
 
@@ -196,61 +187,6 @@ void ATopDownShooterPlayerController::SetupInputComponent()
 	// support touch devices 
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ATopDownShooterPlayerController::MoveToTouchLocation);
 	//InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ATopDownShooterPlayerController::MoveToTouchLocation);
-}
-
-void ATopDownShooterPlayerController::MoveToMouseCursor()
-{
-	// Trace to see what is under the mouse cursor
-	FHitResult Hit;
-	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-
-	if (Hit.bBlockingHit)
-	{
-		// We hit something, move there
-		SetNewMoveDestination(Hit.ImpactPoint);
-	}
-}
-
-void ATopDownShooterPlayerController::MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	FVector2D ScreenSpaceLocation(Location);
-
-	// Trace to see what is under the touch location
-	FHitResult HitResult;
-	GetHitResultAtScreenPosition(ScreenSpaceLocation, CurrentClickTraceChannel, true, HitResult);
-	if (HitResult.bBlockingHit)
-	{
-		// We hit something, move there
-		SetNewMoveDestination(HitResult.ImpactPoint);
-	}
-}
-
-void ATopDownShooterPlayerController::SetNewMoveDestination(const FVector DestLocation)
-{
-	APawn* const Pawn = GetHeroPawn();
-	if (Pawn)
-	{
-		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
-		float const Distance = FVector::Dist(DestLocation, Pawn->GetActorLocation());
-
-		// We need to issue move command only if far enough in order for walk animation to play correctly
-		if (NavSys && (Distance > 120.0f))
-		{
-			NavSys->SimpleMoveToLocation(this, DestLocation);
-		}
-	}
-}
-
-void ATopDownShooterPlayerController::OnSetDestinationPressed()
-{
-	// set flag to keep updating destination until released
-	bMoveToMouseCursor = true;
-}
-
-void ATopDownShooterPlayerController::OnSetDestinationReleased()
-{
-	// clear flag to indicate we should stop updating the destination
-	bMoveToMouseCursor = false;
 }
 
 void ATopDownShooterPlayerController::OnAttackPressed()
@@ -340,35 +276,12 @@ void ATopDownShooterPlayerController::OnOpenInventoryReleased()
 
 void ATopDownShooterPlayerController::OnLMouseDownPressed()
 {
-	if (IsStrategyMode())
+	if (IsSamplingBuild && ABuildingSampler::GetInstance(GetWorld()))
 	{
-		if (IsSamplingBuild && ABuildingSampler::GetInstance(GetWorld()))
-		{
-			/*FHitResult HitResult;
-			GetHitResultUnderCursor(ECC_WorldStatic, false, HitResult);
-			if (HitResult.bBlockingHit && HitResult.Actor.IsValid())
-			{
-				MakeBuilding(HitResult.Location, ABuildingSampler::GetInstance(GetWorld())->BuildingClass);
-				EndSampleBuilding();
-			}*/
-			MakeBuilding(ABuildingSampler::GetInstance(GetWorld())->GetActorLocation(),
-						ABuildingSampler::GetInstance(GetWorld())->GetActorRotation(),
-						ABuildingSampler::GetInstance(GetWorld())->BuildingClass);
-			EndSampleBuilding();
-		}
-		else 
-		{
-			FHitResult HitResult;
-			GetHitResultUnderCursor(ECC_Pawn, false, HitResult);
-			if (HitResult.Actor.IsValid())
-			{
-
-			}
-			if (HitResult.Actor.IsValid() && Cast<ACitizenUnit>(HitResult.Actor.Get()))
-			{
-				SelectedUnit = Cast<ACitizenUnit>(HitResult.Actor.Get());
-			}
-		}
+		MakeBuilding(ABuildingSampler::GetInstance(GetWorld())->GetActorLocation(),
+			ABuildingSampler::GetInstance(GetWorld())->GetActorRotation(),
+			ABuildingSampler::GetInstance(GetWorld())->BuildingClass);
+		EndSampleBuilding();
 	}
 }
 
@@ -379,21 +292,32 @@ void ATopDownShooterPlayerController::OnLMouseDownReleased()
 
 void ATopDownShooterPlayerController::OnRMouseDownPressed()
 {
+	FCommandTarget TargetCommand;
+	TargetCommand.Controller = this;
 	IsRMouseDown = true;
-	/*if (GetHeroPawn() != nullptr && GetStateName() != NAME_Spectating)
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+	if (HitResult.Actor.IsValid())
 	{
-		FHitResult Hit;
-		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-		if (Hit.bBlockingHit)
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Actor HIT!");
+		if (ISelectable* SelectableTarget = Cast<ISelectable>(HitResult.Actor.Get()))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString("BeginAttack"));
-			GetHeroPawn()->BeginAttack(Hit.ImpactPoint);
+			TargetCommand.TargetActor = HitResult.Actor.Get();
+			TargetCommand.TargetPosition = HitResult.Actor.Get()->GetActorLocation();
+		}
+		else
+		{
+			TargetCommand.TargetPosition = HitResult.Location;
 		}
 	}
-	if (IsStrategyMode())
+	else
 	{
-
-	}*/
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Hit location");
+		TargetCommand.TargetPosition = HitResult.Location;
+	}
+	if (SelectedUnits.Num() > 0 && TargetPointParticles)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TargetPointParticles, TargetCommand.TargetPosition);
+	ServerCommandTarget(SelectedUnits, TargetCommand);
 }
 
 void ATopDownShooterPlayerController::OnRMouseDownReleased()
@@ -409,12 +333,15 @@ bool ATopDownShooterPlayerController::IsStrategyMode()
 void ATopDownShooterPlayerController::BeginSampleBuilding(TSubclassOf<ABuilding> BuildingClass)
 {
 	ABuildingSampler* sampler = ABuildingSampler::GetInstance(GetWorld());
-	if (IsStrategyMode() && sampler)
+	if (sampler)
 	{
 		IsSamplingBuild = true;
 		ABuilding* def = BuildingClass.GetDefaultObject();
-		if(def)
+		if (def)
+		{
 			sampler->SetMesh(def->GetBuildingMesh());
+			sampler->SetMeshScale(def->GetMeshComponent()->GetRelativeTransform().GetScale3D());
+		}
 		sampler->BuildingClass = BuildingClass;
 		sampler->SetActorHiddenInGame(false);
 	}
@@ -442,16 +369,41 @@ void ATopDownShooterPlayerController::UnselectAll()
 	SelectedUnits.Empty();
 }
 
-void ATopDownShooterPlayerController::SelectUnits(TArray<APawn*> Units)
+void ATopDownShooterPlayerController::SelectUnits(TArray<AActor*> Units)
 {
 	UnselectAll();
 	SelectedUnits = Units;
+	TArray<TScriptInterface<ISelectable>> Selected;
 	for (auto Pawn : SelectedUnits)
 	{
 		ISelectable* Selectable = Cast<ISelectable>(Pawn);
 		if (Selectable)
 		{
 			Selectable->Execute_Selected(Pawn);
+			TScriptInterface<ISelectable> item;
+			item.SetInterface(Selectable);
+			item.SetObject(Pawn);
+			Selected.Add(item);
 		}
 	}
+	OnSelected.Broadcast(Selected);
+}
+
+void ATopDownShooterPlayerController::ServerCommandTarget_Implementation(const TArray<AActor*> & CommandUnits, FCommandTarget Target)
+{
+	FCommandTarget Targ = Target;
+	Targ.Controller = this;
+	for (auto Pawn : CommandUnits)
+	{
+		if (!Pawn) continue;
+		if (ISelectable* Selectable = Cast<ISelectable>(Pawn))
+		{
+			Selectable->Execute_SetTargetPoint(Pawn, Targ);
+		}
+	}
+}
+
+bool ATopDownShooterPlayerController::ServerCommandTarget_Validate(const TArray<AActor*> & CommandUnits, FCommandTarget Target)
+{
+	return true;
 }

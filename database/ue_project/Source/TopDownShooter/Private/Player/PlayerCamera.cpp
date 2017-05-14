@@ -16,7 +16,7 @@ APlayerCamera::APlayerCamera()
 	CameraComponent->AttachTo(RootComponent);
 	CameraComponent->SetWorldRotation(FRotator(-45.0f, 0.0f, 0.0f));
 	
-	StrategyModeHeight = 800.0f;
+	StrategyModeHeight = 1600.0f;
 }
 
 // Called when the game starts or when spawned

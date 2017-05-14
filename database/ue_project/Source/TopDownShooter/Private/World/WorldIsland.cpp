@@ -7,7 +7,7 @@
 
 //#include "LibNoise/GeneratorModules.h"
 //#include "../../ThirdParty/LibNoise/Includes/noise.h"
-#include "LibNoise.h"
+//#include "LibNoise.h"
 
 #define RED 2
 #define GREEN 1
@@ -97,6 +97,7 @@ void AWorldIsland::UpdateMap()
 
 void AWorldIsland::GenerateMap()
 {
+	/*
 	RandStream.GenerateNewSeed();
 	//noise::module::Perlin* perlinNoise1 = new noise::module::Perlin();
 	noise::module::Perlin* perlinNoise = new noise::module::Perlin();
@@ -129,11 +130,12 @@ void AWorldIsland::GenerateMap()
 	UpdateMap();
 	delete perlinNoise;
 	delete perlinNoise2;
-	delete mul;
+	delete mul;*/
 }
 
 void AWorldIsland::GenerateMesh()
 {
+	/*
 	TArray<FVector> verts;
 	TArray<int> tris; // % 3 = 0;
 	TArray<FVector> normals;
@@ -247,12 +249,12 @@ void AWorldIsland::GenerateMesh()
 		}
 	}
 
-	Mesh->CreateMeshSection(0, verts, tris, normals, UVs, colors, tangents, true);
+	Mesh->CreateMeshSection(0, verts, tris, normals, UVs, colors, tangents, true);*/
 }
 
 void AWorldIsland::GenerateBottomMesh()
 {
-	TArray<FVector> verts;
+	/*TArray<FVector> verts;
 	TArray<int> tris; // % 3 = 0;
 	TArray<FVector> normals;
 
@@ -367,7 +369,7 @@ void AWorldIsland::GenerateBottomMesh()
 	
 	Mesh->CreateMeshSection(1, verts, tris, normals, UVs, colors, tangents, true);
 	
-	delete perlin;
+	delete perlin;*/
 }
 
 bool AWorldIsland::CheckNeightbours(int x, int y)

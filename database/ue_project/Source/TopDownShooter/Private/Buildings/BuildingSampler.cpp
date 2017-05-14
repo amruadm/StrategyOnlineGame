@@ -28,12 +28,26 @@ void ABuildingSampler::BeginPlay()
 void ABuildingSampler::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
+
+
 }
 
 void ABuildingSampler::SetMesh(USkeletalMesh* SamplerMesh)
 {
 	MeshComponent->SetSkeletalMesh(SamplerMesh, true);
 	//MeshComponent->SkeletalMesh = SamplerMesh;
+}
+
+void ABuildingSampler::SetMeshScale(FVector Scale)
+{
+	//SetActorScale3D(Scale);
+	MeshComponent->SetRelativeScale3D(Scale);
+	//MeshComponent->SetWorldScale3D(Scale);
+}
+
+void ABuildingSampler::SetColor(FColor Color)
+{
+	MeshComponent->SetVectorParameterValueOnMaterials("Color", (FVector)Color);
 }
 
 void ABuildingSampler::Destroyed()

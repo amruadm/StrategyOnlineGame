@@ -10,6 +10,16 @@ UObject* UGameHelpers::SpawnObjectFromClass(UClass* ObjectClass)
 	return NewObject<UObject>(GetTransientPackage(), ObjectClass);
 }
 
+FControlData UGameHelpers::GetUIData(TScriptInterface<ISelectable> Selectable)
+{
+	FControlData Result;
+	if (Selectable)
+	{
+		Result = Selectable->Execute_GetUIData(Selectable.GetObject());
+	}
+	return Result;
+}
+
 FVector UGameHelpers::IntersectRayWithPlane(const FVector& RayOrigin, const FVector& RayDirection, const FPlane& Plane)
 {
 	const FVector PlaneNormal = FVector(Plane.X, Plane.Y, Plane.Z);
@@ -80,9 +90,9 @@ TArray<FItemCeil> UGameHelpers::GetItems(TScriptInterface<IWorkerInterface> Targ
 	return Target->GetItems();
 }
 
-int UGameHelpers::GiveResourceFrom(TScriptInterface<IWorkerInterface> Target, UPARAM(ref) FItemCeil & Item, int Count)
+int UGameHelpers::GiveResourceFrom(TScriptInterface<IWorkerInterface> Target, UPARAM(ref) FItemCeil & Item)
 {
-	return Target->GiveResourceFrom(Item, Count);
+	return Target->GiveResourceFrom(Item);
 }
 
 int UGameHelpers::TakeItemsOfClass(TScriptInterface<IWorkerInterface> Target, TSubclassOf<UItem> ItemClass, int Count)
@@ -93,4 +103,30 @@ int UGameHelpers::TakeItemsOfClass(TScriptInterface<IWorkerInterface> Target, TS
 bool UGameHelpers::ContainsItemOfClass(TScriptInterface<IWorkerInterface> Target, TSubclassOf<UItem> ItemClass, int Count)
 {
 	return Target->ContainsItemOfClass(ItemClass, Count);
+}
+
+//----------------------------------------------
+
+UTexture2D* UGameHelpers::GetItemIcon(TSubclassOf<UItem> Target)
+{
+	if (Target)
+	{
+		if (UItem* ItemObject = Target->GetDefaultObject<UItem>())
+		{
+			return ItemObject->Icon;
+		}
+	}
+	return nullptr;
+}
+
+UTexture2D* UGameHelpers::GetBuildingIcon(TSubclassOf<ABuilding> Target)
+{
+	if (Target)
+	{
+		if (ABuilding* BuildingObject = Target->GetDefaultObject<ABuilding>())
+		{
+			return BuildingObject->Icon;
+		}
+	}
+	return nullptr;
 }

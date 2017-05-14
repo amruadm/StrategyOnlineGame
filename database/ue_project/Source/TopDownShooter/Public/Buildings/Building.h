@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "Public/GameTypes.h"
 #include "Public/Interfaces/TeamObjectInterface.h"
+#include "Public/Interfaces/Selectable.h"
 #include "Building.generated.h"
 
 USTRUCT(BlueprintType)
@@ -20,7 +21,7 @@ struct FBuildingItemCeil : public FItemCeil
 };
 
 UCLASS(Blueprintable)
-class TOPDOWNSHOOTER_API ABuilding : public AActor, public ITeamObjectInterface, public IUnitPlaceInterface
+class TOPDOWNSHOOTER_API ABuilding : public AActor, public ITeamObjectInterface, public IUnitPlaceInterface, public ISelectable
 {
 	GENERATED_BODY()
 	
@@ -33,6 +34,11 @@ public:
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
+
+	USkeletalMeshComponent* GetMeshComponent() const
+	{
+		return BuildingMeshComponent;
+	}
 
 	virtual int GetTeamNum() const override { return TeamNum; }
 
@@ -70,6 +76,9 @@ public:
 	FItemCeil GetFirstNeeded();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	float GetBuildProgress() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
 	float GetMaxHealth() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
@@ -80,6 +89,10 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure, Category = "Buildibg")
 	int GetGradeCost() const;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Buildibg")
+	void OnBuildingComplete();
+	virtual void OnBuildingComplete_Implementation() {};
 
 	virtual void PlaceUnit(class AGameUnit* Unit) override;
 
@@ -103,9 +116,16 @@ public:
 	TArray<FBuildingItemCeil> BuildResources;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
-	TWeakObjectPtr<UTexture2D> Icon;
+	UTexture2D* Icon;
 
 	USkeletalMesh* GetBuildingMesh();
+
+	/*ISelectable implementation*/
+	virtual void Selected_Implementation() override;
+	virtual void Unselected_Implementation() override;
+	virtual void SetTargetPoint_Implementation(const FCommandTarget & Target) override {};
+	virtual bool CanBeMultipleSelected_Implementation() override { return false; }
+	virtual FControlData GetUIData_Implementation() override;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Replicated, Category="Building")

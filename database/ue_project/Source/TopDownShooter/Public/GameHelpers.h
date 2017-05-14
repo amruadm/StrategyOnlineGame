@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Public/UISystem.h"
 #include "GameHelpers.generated.h"
 
 UCLASS()
@@ -13,6 +14,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static UObject* SpawnObjectFromClass(UClass* ObjectClass);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Selectable")
+	static FControlData GetUIData(TScriptInterface<class ISelectable> Selectable);
 
 	/** find intersection of ray in world space with ground plane */
 	static FVector IntersectRayWithPlane(const FVector& RayOrigin, const FVector& RayDirection, const FPlane& Plane);
@@ -46,12 +50,19 @@ public:
 	static TArray<struct FItemCeil> GetItems(TScriptInterface<class IWorkerInterface> Target);
 
 	UFUNCTION(BlueprintCallable, Category = "Worker")
-	static int GiveResourceFrom(TScriptInterface<class IWorkerInterface> Target, UPARAM(ref) FItemCeil & Item, int Count);
+	static int GiveResourceFrom(TScriptInterface<class IWorkerInterface> Target, UPARAM(ref) FItemCeil & Item);
 
 	UFUNCTION(BlueprintCallable, Category = "Worker")
 	static int TakeItemsOfClass(TScriptInterface<class IWorkerInterface> Target, TSubclassOf<UItem> ItemClass, int Count);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Worker")
 	static bool ContainsItemOfClass(TScriptInterface<class IWorkerInterface> Target, TSubclassOf<UItem> ItemClass, int Count = 0);
+
+	/*Get class defaults helpers*/
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
+	static UTexture2D* GetItemIcon(TSubclassOf<class UItem> Target);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Building")
+	static UTexture2D* GetBuildingIcon(TSubclassOf<class ABuilding> Target);
 		
 };

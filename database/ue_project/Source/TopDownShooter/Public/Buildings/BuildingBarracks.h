@@ -100,4 +100,8 @@ protected:
 	
 	void SpawnUnit(const FBarracksQueueItem & Item);
 	
+	UFUNCTION(BlueprintNativeEvent, Category="Barracks")
+	FVector GetSpawnPoint() const;
+	virtual FVector GetSpawnPoint_Implementation() const;
+	
 };

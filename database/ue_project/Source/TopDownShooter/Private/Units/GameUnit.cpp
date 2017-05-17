@@ -12,12 +12,12 @@ AGameUnit::AGameUnit()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	bReplicateMovement = true;
-	isProcessing = false;
 
 	Strength = 1;
 	Agility = 1;
 	Intellect = 1;
 	Exp = 0;
+	AttackSpeed = 1.0f;
 }
 
 // Called when the game starts or when spawned
@@ -38,7 +38,6 @@ void AGameUnit::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AGameUnit, TeamNum);
 	DOREPLIFETIME(AGameUnit, Health);
-	DOREPLIFETIME(AGameUnit, isProcessing);
 	DOREPLIFETIME(AGameUnit, Place);
 	DOREPLIFETIME(AGameUnit, Target);
 }
@@ -94,20 +93,45 @@ void AGameUnit::BeginProcessAction(EGameUnitAction ActionType, AActor* TargetAct
 {	
 	if (Role == ROLE_Authority)
 	{
-		Target = TargetActor;
-		MulticastBeginProcessAction(ActionType);
+		MulticastBeginProcessAction(ActionType, TargetActor);
 	}
 }
 
-void AGameUnit::MulticastBeginProcessAction_Implementation(EGameUnitAction ActionType)
+void AGameUnit::MulticastBeginProcessAction_Implementation(EGameUnitAction ActionType, AActor* TargetActor)
 {
-	isProcessing = true;
 	OnBeginProcessAction.Broadcast(ActionType);
+	if (!TargetActor || !Anims.Contains(ActionType) || Anims[ActionType].Num() <= 0)
+	{		
+		EndAction(ActionType);
+		return;
+	}
+
+	Target = TargetActor;
+
+	if (USkeletalMeshComponent* Mesh = GetMesh())
+	{
+		if (UAnimInstance* AnimInstance = Mesh->GetAnimInstance())
+		{
+			UAnimSequenceBase* anim = Anims[ActionType][FMath::RandRange(0, Anims[ActionType].Num()-1)];
+
+			float animRate = 1.0f;
+			if (ActionType == EGameUnitAction::UA_Attack)
+				animRate = anim->GetPlayLength() / AttackSpeed;
+
+			AnimInstance->PlaySlotAnimationAsDynamicMontage(
+				anim,
+				"DefaultSlot", 0.25f, 0.25,
+				animRate
+			);
+			GetWorld()->GetTimerManager().SetTimer(ActionTimer, [this, ActionType]() {
+				EndAction(ActionType);
+			}, animRate, false, animRate);
+		}
+	}
 }
 
 void AGameUnit::ProcessAction(EGameUnitAction ActionType)
 {
-	isProcessing = false;
 	OnProcessAction.Broadcast(ActionType);
 	if (ActionType == EGameUnitAction::UA_Attack)
 	{
@@ -117,6 +141,7 @@ void AGameUnit::ProcessAction(EGameUnitAction ActionType)
 
 void AGameUnit::EndAction(EGameUnitAction ActionType)
 {
+	Target = nullptr;
 	OnEndAction.Broadcast(ActionType);
 }
 
@@ -170,7 +195,10 @@ void AGameUnit::MulticastPlayAnimation_Implementation(EGameUnitAction AnimAction
 
 void AGameUnit::ProcessAttack()
 {
-	
+	if (Target)
+	{
+		UGameplayStatics::ApplyDamage(Target, Damage.GetDamage(), GetController(), this, Damage.DamageType);
+	}
 }
 
 void AGameUnit::Selected_Implementation()

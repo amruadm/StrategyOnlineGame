@@ -91,6 +91,6 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Extractor")
 	TArray<FExtractorWorkplace> Workplaces;
 
-	
+	virtual void ResizeWorkplaces() override;
 	
 };

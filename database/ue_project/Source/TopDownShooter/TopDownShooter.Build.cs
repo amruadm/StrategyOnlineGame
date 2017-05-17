@@ -11,7 +11,7 @@ public class TopDownShooter : ModuleRules
 
     public TopDownShooter(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "RHI", "RenderCore", "ShaderCore" });        
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "RHI", "RenderCore", "ShaderCore", "AIModule" });        
 
         //PublicDependencyModuleNames.Add("LibNoise");
 

@@ -85,20 +85,17 @@ struct FDamage
 
 	FDamage();
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Min;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Max;
 
 	UPROPERTY()
 	FRandomStream Random;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UDamageType_Base> DamageType;
-
-	UPROPERTY()
-	TScriptInterface<class ITeamObjectInterface> Instigator;
 
 	float GetDamage() const;
 };
@@ -157,9 +154,9 @@ struct FCommandTarget: public FCommandBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	FVector TargetPosition = FVector(0);
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	AActor* TargetActor = nullptr;
 };

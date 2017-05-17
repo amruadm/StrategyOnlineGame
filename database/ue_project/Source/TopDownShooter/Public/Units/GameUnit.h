@@ -36,6 +36,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Unit)
 	int Intellect;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Unit)
+	float AttackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Unit)
+	FDamage Damage;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
 	bool WaitForProcessAttack;
 
@@ -90,9 +96,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FProcessDelegate OnEndAction;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Events")
-	bool isProcessing;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameUnit")
 	UTexture2D* Icon;
 
@@ -127,7 +130,7 @@ private:
 protected:
 
 	UFUNCTION(NetMulticast, reliable)
-	void MulticastBeginProcessAction(EGameUnitAction ActionType);
+	void MulticastBeginProcessAction(EGameUnitAction ActionType, AActor* TargetActor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category="TeamObject")
 	int TeamNum;
@@ -138,4 +141,6 @@ protected:
 	//Building, wagon or airship
 	UPROPERTY(Replicated)
 	class AActor* Place;
+
+	FTimerHandle ActionTimer;
 };

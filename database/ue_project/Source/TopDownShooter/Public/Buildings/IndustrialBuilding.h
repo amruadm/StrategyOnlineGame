@@ -10,7 +10,7 @@ struct FBuildingWorkplace
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class AWorkerUnit* Worker;
 };
 
@@ -25,6 +25,8 @@ class TOPDOWNSHOOTER_API AIndustrialBuilding : public ABuilding
 	
 public:
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Extractor")
 	TSubclassOf<class AWorkerUnit> WorkerClass;
 
@@ -32,5 +34,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Building")
 	int GetWorkplacesNum() const;
+
+protected:
+
+	virtual void ResizeWorkplaces();
 	
 };

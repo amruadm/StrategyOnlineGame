@@ -15,7 +15,10 @@ class TOPDOWNSHOOTER_API UWeaponItem : public UItem
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Item")
-	TSubclassOf<class AWeapon> WeaponItemClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	USkeletalMesh* WeaponMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	struct FDamage Damage;
 	
 };

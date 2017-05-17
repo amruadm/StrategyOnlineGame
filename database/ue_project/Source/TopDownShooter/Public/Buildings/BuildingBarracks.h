@@ -39,7 +39,7 @@ struct FBarracksQueueItemTarget
 	
 	UPROPERTY(BlueprintReadOnly)
 	int Count;
-}
+};
 
 USTRUCT(BlueprintType)
 struct FBarracksQueueItem
@@ -84,7 +84,10 @@ public:
 	virtual void OnBuildingComplete_Implementation() override;
 	
 	UFUNCTION(Server, Reliable, WithValidation)
-	void AddQueueItem(int ItemIndex, TArray<FBarracksQueueItemTarget> UsingItems);
+	void AddQueueItem(int ItemIndex, const TArray<FBarracksQueueItemTarget> & UsingItems);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void RemoveQueueItem(int Index);
 	
 	void PushItem(FItemCeil Item);
 	
@@ -96,12 +99,14 @@ protected:
 	TArray<FBarracksItem> Items;
 	
 	UPROPERTY(Replicated)
-	TQueue<FBarracksQueueItem> Queue;
+	TArray<FBarracksQueueItem> Queue;
 	
 	void SpawnUnit(const FBarracksQueueItem & Item);
 	
 	UFUNCTION(BlueprintNativeEvent, Category="Barracks")
 	FVector GetSpawnPoint() const;
 	virtual FVector GetSpawnPoint_Implementation() const;
+
+	bool GetQueuePeekItem(FBarracksQueueItem & PeekItem) const;
 	
 };

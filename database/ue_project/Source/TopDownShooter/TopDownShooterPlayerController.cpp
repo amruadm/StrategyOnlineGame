@@ -296,24 +296,26 @@ void ATopDownShooterPlayerController::OnRMouseDownPressed()
 	TargetCommand.Controller = this;
 	IsRMouseDown = true;
 	FHitResult HitResult;
-	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+	GetHitResultUnderCursor(ECC_WorldDynamic, false, HitResult);
 	if (HitResult.Actor.IsValid())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Actor HIT!");
+	{		
 		if (ISelectable* SelectableTarget = Cast<ISelectable>(HitResult.Actor.Get()))
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "ISelectable");
 			TargetCommand.TargetActor = HitResult.Actor.Get();
 			TargetCommand.TargetPosition = HitResult.Actor.Get()->GetActorLocation();
 		}
 		else
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "NO ISelectable");
 			TargetCommand.TargetPosition = HitResult.Location;
+			TargetCommand.TargetActor = nullptr;
 		}
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Hit location");
 		TargetCommand.TargetPosition = HitResult.Location;
+		TargetCommand.TargetActor = nullptr;
 	}
 	if (SelectedUnits.Num() > 0 && TargetPointParticles)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TargetPointParticles, TargetCommand.TargetPosition);

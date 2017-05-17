@@ -123,3 +123,8 @@ bool ABuildingExtractor::CanBePlaced(AGameUnit* Unit) const
 	}
 	return false;
 }
+
+void ABuildingExtractor::ResizeWorkplaces()
+{
+	Workplaces.SetNum(GetWorkplacesNum());
+}

@@ -58,6 +58,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Worker")
 	static bool ContainsItemOfClass(TScriptInterface<class IWorkerInterface> Target, TSubclassOf<UItem> ItemClass, int Count = 0);
 
+	/*
+	----------------Storage interface Blueprint method implementation
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Storage")
+	static TArray<FItemCeil> GetStorageItems(TScriptInterface<class IStorageInterface> Target);
+
 	/*Get class defaults helpers*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
 	static UTexture2D* GetItemIcon(TSubclassOf<class UItem> Target);

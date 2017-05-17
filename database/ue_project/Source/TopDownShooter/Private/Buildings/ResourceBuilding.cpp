@@ -4,6 +4,10 @@
 #include "Public/Buildings/ResourceBuilding.h"
 #include "Public/Units/WorkerUnit.h"
 
+void AResourceBuilding::BeginPlay()
+{
+	Super::BeginPlay();
+}
 
 int AResourceBuilding::GetWorkplacesNum_Implementation() const
 {
@@ -49,4 +53,9 @@ TArray<AGameUnit*> AResourceBuilding::GetPlacedUnits() const
 bool AResourceBuilding::CanBePlaced(class AGameUnit* Unit) const
 {
 	return false;
+}
+
+void AResourceBuilding::ResizeWorkplaces()
+{
+	Workplaces.SetNum(GetWorkplacesNum());
 }

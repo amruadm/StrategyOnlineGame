@@ -24,6 +24,8 @@ class TOPDOWNSHOOTER_API AResourceBuilding : public AIndustrialBuilding
 	
 public:
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ResourceBuilding")
 	TSubclassOf<class UItem> InputResourceItem;
 
@@ -46,12 +48,14 @@ public:
 	virtual TArray<class AGameUnit*> GetPlacedUnits() const override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
-		virtual bool CanBePlaced(class AGameUnit* Unit) const override;
+	virtual bool CanBePlaced(class AGameUnit* Unit) const override;
 
 	//----------------------------------------------
 
 protected:
 
 	TArray<FResourceWorkplace> Workplaces;
+
+	virtual void ResizeWorkplaces() override;
 	
 };

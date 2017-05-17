@@ -3,6 +3,7 @@
 #include "TopDownShooter.h"
 #include "Public/Units/WarrirorUnit.h"
 #include "AI/Navigation/NavigationSystem.h"
+#include "Public/AI/UnitAIController.h"
 
 
 
@@ -12,14 +13,9 @@ void AWarrirorUnit::SetTargetPoint_Implementation(const struct FCommandTarget & 
 	{
 		if (TeamObject->GetTeamNum() == TeamNum)
 		{
-			FVector DestLocation = Target.TargetActor ? Target.TargetActor->GetActorLocation() : Target.TargetPosition;
-			UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
-			float const Distance = FVector::Dist(DestLocation, GetActorLocation());
-
-			// We need to issue move command only if far enough in order for walk animation to play correctly
-			if (NavSys && (Distance > TARGET_MOVE_DISTANCE))
+			if (AUnitAIController* Controller = Cast<AUnitAIController>(GetController()))
 			{
-				NavSys->SimpleMoveToLocation(GetController(), DestLocation);
+				Controller->SetTarget(Target);
 			}
 		}
 	}

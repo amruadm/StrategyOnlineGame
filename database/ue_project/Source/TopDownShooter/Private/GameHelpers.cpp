@@ -107,6 +107,13 @@ bool UGameHelpers::ContainsItemOfClass(TScriptInterface<IWorkerInterface> Target
 
 //----------------------------------------------
 
+TArray<FItemCeil> UGameHelpers::GetStorageItems(TScriptInterface<class IStorageInterface> Target)
+{
+	return Target->GetItems();
+}
+
+//----------------------------------------------
+
 UTexture2D* UGameHelpers::GetItemIcon(TSubclassOf<UItem> Target)
 {
 	if (Target)

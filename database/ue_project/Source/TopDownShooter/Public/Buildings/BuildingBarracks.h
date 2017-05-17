@@ -19,8 +19,27 @@ struct FBarracksItem
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BuildTime;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int Golds;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int AvaliableLevel = 1;
 };
+
+USTRUCT(BlueprintType)
+struct FBarracksQueueItemTarget
+{
+	GENERATED_BODY()
+		
+	UPROPERTY(BlueprintReadOnly)	
+	int TargetIndex;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TSubclassOf<class UItem> ItemClass;
+	
+	UPROPERTY(BlueprintReadOnly)
+	int Count;
+}
 
 USTRUCT(BlueprintType)
 struct FBarracksQueueItem
@@ -29,6 +48,9 @@ struct FBarracksQueueItem
 	
 	UPROPERTY(BlueprintReadOnly)
 	int ItemIndex;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FBarracksQueueItemTarget> PushItems;
 	
 	//UPROPERTY(BlueprintReadOnly)
 	//FTimerHandle Timer;
@@ -61,7 +83,12 @@ public:
 	
 	virtual void OnBuildingComplete_Implementation() override;
 	
-	void AddQueueItem(int ItemIndex);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void AddQueueItem(int ItemIndex, TArray<FBarracksQueueItemTarget> UsingItems);
+	
+	void PushItem(FItemCeil Item);
+	
+	FItemCeil GetNeededQueueItem() const;
 	
 protected:
 
@@ -70,5 +97,7 @@ protected:
 	
 	UPROPERTY(Replicated)
 	TQueue<FBarracksQueueItem> Queue;
+	
+	void SpawnUnit(const FBarracksQueueItem & Item);
 	
 };

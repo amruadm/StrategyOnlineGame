@@ -5,6 +5,37 @@
 #include "Buildings/Building.h"
 #include "BuildingBarracks.generated.h"
 
+USTRUCT(BlueprintType)
+struct FBarracksItem
+{
+	GENERATED_BODY()
+		
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<class AGameUnit> UnitClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FItemCeil> NeededItems;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BuildTime;
+	
+	int AvaliableLevel = 1;
+};
+
+USTRUCT(BlueprintType)
+struct FBarracksQueueItem
+{
+	GENERATED_BODY()	
+	
+	UPROPERTY(BlueprintReadOnly)
+	int ItemIndex;
+	
+	//UPROPERTY(BlueprintReadOnly)
+	//FTimerHandle Timer;
+	UPROPERTY(BlueprintReadOnly)
+	float ProgressTime = 0.0f;
+};
+
 /**
  * 
  */
@@ -13,7 +44,31 @@ class TOPDOWNSHOOTER_API ABuildingBarracks : public ABuilding
 {
 	GENERATED_BODY()
 	
+public:
 	
+	virtual void BeginPlay() override;
 	
+	virtual void Tick( float DeltaSeconds ) override;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Barracks")
+	TArray<FBarracksItem> GetItems() const
+	{
+		return Items;
+	}
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Barracks")
+	TArray<FBarracksItem> GetAvaliableItems() const;
+	
+	virtual void OnBuildingComplete_Implementation() override;
+	
+	void AddQueueItem(int ItemIndex);
+	
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category="Barracks")
+	TArray<FBarracksItem> Items;
+	
+	UPROPERTY(Replicated)
+	TQueue<FBarracksQueueItem> Queue;
 	
 };

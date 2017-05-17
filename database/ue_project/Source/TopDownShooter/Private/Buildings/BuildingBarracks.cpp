@@ -20,7 +20,7 @@ void ABuildingBarracks::Tick( float DeltaSeconds )
       
     if(PeekItem.ProgressTime >= Items[PeekItem.ItemIndex].BuildTime)
     {
-      
+      SpawnUnit(PeekItem);
       Queue.Pop();
     }
     else

@@ -77,6 +77,12 @@ public:
 	{
 		return Items;
 	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Barracks")
+	TArray<FBarracksQueueItem> GetQueue() const
+	{
+		return Queue;
+	}
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Barracks")
 	TArray<FBarracksItem> GetAvaliableItems() const;
@@ -108,5 +114,7 @@ protected:
 	virtual FVector GetSpawnPoint_Implementation() const;
 
 	bool GetQueuePeekItem(FBarracksQueueItem & PeekItem) const;
+
+	bool IsPeekItemFull() const;
 	
 };

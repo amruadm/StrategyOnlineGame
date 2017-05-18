@@ -70,5 +70,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Building")
 	static UTexture2D* GetBuildingIcon(TSubclassOf<class ABuilding> Target);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Unit")
+	static UTexture2D* GetUnitIcon(TSubclassOf<class AGameUnit> Target);
 		
 };

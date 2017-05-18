@@ -64,10 +64,11 @@ void AGameHUD::Select(FVector2D StartPos, FVector2D EndPos)
 		{
 			if (Cast<ISelectable>(HitResult.Actor.Get()))
 			{
-				if(APawn* Pawn = Cast<APawn>(HitResult.Actor.Get()))
-					PendingToSelectActors.Add(Pawn);
+				PendingToSelectActors.Add(HitResult.Actor.Get());					
 			}
+			else return;
 		}
+		else return;
 	}
 	else
 	{

@@ -137,3 +137,15 @@ UTexture2D* UGameHelpers::GetBuildingIcon(TSubclassOf<ABuilding> Target)
 	}
 	return nullptr;
 }
+
+UTexture2D* UGameHelpers::GetUnitIcon(TSubclassOf<AGameUnit> Target)
+{
+	if (Target)
+	{
+		if (AGameUnit* UnitObject = Target->GetDefaultObject<AGameUnit>())
+		{
+			return UnitObject->Icon;
+		}
+	}
+	return nullptr;
+}

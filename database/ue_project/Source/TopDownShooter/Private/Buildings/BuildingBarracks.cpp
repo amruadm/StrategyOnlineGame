@@ -13,19 +13,20 @@ void ABuildingBarracks::BeginPlay()
 void ABuildingBarracks::Tick( float DeltaSeconds )
 {
   Super::Tick(DeltaSeconds);
-  
-  FBarracksQueueItem PeekItem;
-  if(GetQueuePeekItem(PeekItem))
+  if (HasAuthority())
   {
-    if(!Items.IsValidIndex(PeekItem.ItemIndex))
-      
-    if(PeekItem.ProgressTime >= Items[PeekItem.ItemIndex].BuildTime)
-    {
-      SpawnUnit(PeekItem);
-	  Queue.RemoveAt(Queue.Num()-1);
-    }
-    else
-      PeekItem.ProgressTime += DeltaSeconds;
+	  FBarracksQueueItem PeekItem;
+	  if (GetQueuePeekItem(PeekItem) && IsPeekItemFull())
+	  {
+		  if (!Items.IsValidIndex(PeekItem.ItemIndex))
+			  if (PeekItem.ProgressTime >= Items[PeekItem.ItemIndex].BuildTime)
+			  {
+				  SpawnUnit(PeekItem);
+				  Queue.RemoveAt(Queue.Num() - 1);
+			  }
+			  else
+				  PeekItem.ProgressTime += DeltaSeconds;
+	  }
   }
 }
 
@@ -140,5 +141,23 @@ bool ABuildingBarracks::GetQueuePeekItem(FBarracksQueueItem & PeekItem) const
 {
 	if (!Queue.IsValidIndex(Queue.Num() - 1)) return false;
 	PeekItem = Queue[Queue.Num() - 1];
+	return false;
+}
+
+bool ABuildingBarracks::IsPeekItemFull() const
+{
+	FBarracksQueueItem PeekItem;
+	if (GetQueuePeekItem(PeekItem))
+	{
+		FBarracksItem BarrackItem = Items[PeekItem.ItemIndex];
+		for (FBarracksQueueItemTarget Item : PeekItem.PushItems)
+		{
+			if (Item.Count < BarrackItem.NeededItems[Item.TargetIndex].Count)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 	return false;
 }

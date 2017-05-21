@@ -49,7 +49,7 @@ TArray<FBarracksItem> ABuildingBarracks::GetAvaliableItems() const
 
 void ABuildingBarracks::OnBuildingComplete_Implementation()
 {
-  
+	Super::OnBuildingComplete_Implementation();
 }
 
 void ABuildingBarracks::AddQueueItem_Implementation(int ItemIndex, const TArray<FBarracksQueueItemTarget> & UsingItems)

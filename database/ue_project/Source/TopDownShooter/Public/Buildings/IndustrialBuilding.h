@@ -27,12 +27,19 @@ public:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Extractor")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "IndustrialBuilding")
 	TSubclassOf<class AWorkerUnit> WorkerClass;
 
+	UFUNCTION(BlueprintCallable, Category="IndustrialBuilding")
 	virtual void AddWorker(class AWorkerUnit* Unit) {}
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Building")
+	UFUNCTION(BlueprintCallable, Category = "IndustrialBuilding")
+	virtual bool ContainsWorker() const
+	{
+		return false;
+	}
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "IndustrialBuilding")
 	int GetWorkplacesNum() const;
 
 protected:

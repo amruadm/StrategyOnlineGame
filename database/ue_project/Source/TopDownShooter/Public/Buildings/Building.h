@@ -14,10 +14,31 @@ struct FBuildingItemCeil : public FItemCeil
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	int CurrentCount;
+	int CurrentCount = 0;
+};
 
-	UPROPERTY(EditDefaultsOnly)
-	int Level;
+USTRUCT(BlueprintType)
+struct FBuildingWorker
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	class ASimpleWorkerUnit* Worker = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FBuildingLevelData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int GradeGold;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float GradeTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FBuildingItemCeil> NeedItems;
 };
 
 UCLASS(Blueprintable)
@@ -31,6 +52,8 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void PostInitializeComponents() override;
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
@@ -53,9 +76,15 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Building")
 	void OnLevelChanged(int NewLevel);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Buildibg")
-	void ProcessBuild(class ASimpleWorkerUnit* Unit);
+	void BeginBuild(class ASimpleWorkerUnit* Unit);
+
+	UFUNCTION(BlueprintCallable, Category = "Buildibg")
+	void EndBuild(class ASimpleWorkerUnit* Unit);
+
+	UFUNCTION(BlueprintCallable, Category = "Buildibg")
+	void PutResources(FItemCeil NewItem);
 
 	UFUNCTION(BlueprintCallable, Category = "Buildibg")
 	bool HasCompleted() const;
@@ -73,10 +102,19 @@ public:
 	bool CanWorkerAdded() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	int WorkersNum() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
 	FItemCeil GetFirstNeeded();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
 	float GetBuildProgress() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	float GetBuildPercentPerSec(class ASimpleWorkerUnit* Unit) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
+	bool CanProcessBuild() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buildibg")
 	float GetMaxHealth() const;
@@ -92,7 +130,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Buildibg")
 	void OnBuildingComplete();
-	virtual void OnBuildingComplete_Implementation() {};
+	virtual void OnBuildingComplete_Implementation();
 
 	virtual void PlaceUnit(class AGameUnit* Unit) override;
 
@@ -108,13 +146,7 @@ public:
 		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
 	int MaxWorkerCount;
-
-	/*
-		Resource list for upgrades
-	*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, replicated, Category = "Building")
-	TArray<FBuildingItemCeil> BuildResources;
-	
+		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
 	UTexture2D* Icon;
 
@@ -134,8 +166,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Building")
 	int MaxLevel;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Building")
-	TArray<int> GradeCostList;
+	UPROPERTY(EditDefaultsOnly, Replicated, Category = "Building")
+	TArray<FBuildingLevelData> BuildingData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "TeamObject")
 	int TeamNum;
@@ -150,9 +182,20 @@ protected:
 	UBoxComponent* BoundingBoxComponent;
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Building")
-	TArray<class ASimpleWorkerUnit*> Workers;
+	TArray<FBuildingWorker> Workers;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BuildProgress, Category = "Building")
+	float BuildProgress; // 0.0f - 1.0f
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building")
+	TArray<USkeletalMesh*> ProgressBuildMeshes;
 
 private:
 
+	USkeletalMesh* MainBuildingMesh;
+
 	bool CheckWorkerNecessity(class ASimpleWorkerUnit*) const;
+
+	UFUNCTION()
+	void OnRep_BuildProgress();
 };

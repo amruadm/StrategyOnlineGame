@@ -2,15 +2,26 @@
 
 #include "TopDownShooter.h"
 #include "Public/Units/WorkerUnit.h"
-#include "Public/Weapons/ToolWeapon.h"
+#include "Public/Gameplay/WorkerToolItem.h"
 #include "Public/Resource/GameResource.h"
 #include "Public/Resource/ResourceItem.h"
-#include "Public/Buildings/BuildingExtractor.h"
+#include "Public/Buildings/IndustrialBuilding.h"
 
 
 AWorkerUnit::AWorkerUnit()
 {
+	CurrentTool = nullptr;
+	WeaponAttachmentComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponAttachment"));
+	WeaponAttachmentComponent->AttachTo(GetMesh());
+	PrimaryActorTick.bCanEverTick = true;
+}
 
+void AWorkerUnit::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if(!CurrentTool)
+		EquipDefaultTool();
 }
 
 void AWorkerUnit::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -18,6 +29,8 @@ void AWorkerUnit::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWorkerUnit, OwnExtractor);
 	DOREPLIFETIME(AWorkerUnit, WorkplaceIndex);
+	DOREPLIFETIME(AWorkerUnit, CurrentTool);
+	DOREPLIFETIME(AWorkerUnit, TargetResource);
 }
 
 int AWorkerUnit::GetEfficiency_Implementation() const
@@ -25,7 +38,7 @@ int AWorkerUnit::GetEfficiency_Implementation() const
 	return 1;
 }
 
-void AWorkerUnit::SetOwnExtractor(ABuildingExtractor* Extractor)
+void AWorkerUnit::SetOwnExtractor(AIndustrialBuilding* Extractor)
 {
 	if (!Extractor)
 	{
@@ -40,20 +53,36 @@ void AWorkerUnit::SetOwnExtractor(ABuildingExtractor* Extractor)
 	}
 }
 
-void AWorkerUnit::EquipTool(AToolWeapon* NewTool)
+void AWorkerUnit::EquipTool(TSubclassOf<UWorkerToolItem> NewTool)
 {
 	if (!NewTool) return;
-	if (CurrentTool) CurrentTool->Destroy();
 	CurrentTool = NewTool;
-	CurrentTool->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, WeaponSocketName);
-	CurrentTool->Owner = this;
 }
 
 void AWorkerUnit::EquipDefaultTool()
 {
-	AToolWeapon* tool = GetWorld()->SpawnActor<AToolWeapon>(DefaultToolClass);
-	if (tool)
+	CurrentTool = DefaultToolClass;
+}
+
+void AWorkerUnit::OnRep_CurrentTool()
+{
+	UStaticMesh* TargetMesh = nullptr;
+	if (CurrentTool)
 	{
-		EquipTool(tool);
+		if (UWorkerToolItem* ItemObject = CurrentTool->GetDefaultObject<UWorkerToolItem>())
+		{
+			TargetMesh = ItemObject->AttachmentMesh;			
+		}
 	}
+	WeaponAttachmentComponent->SetStaticMesh(TargetMesh);
+}
+
+void AWorkerUnit::BeginExtract()
+{
+
+}
+
+void AWorkerUnit::EndExtract()
+{
+
 }

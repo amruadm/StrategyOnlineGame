@@ -36,12 +36,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameResource")
 	int GetExtractionCount(class AWorkerUnit* Unit) const;
 
-	UFUNCTION(BlueprintCallable, Category="GameResource")
-	void BeginExtract(class AWorkerUnit* Unit);
-
-	UFUNCTION(BlueprintCallable, Category = "GameResource")
-	void ProcessExtract(class AWorkerUnit* Unit);
-
 	void DieResource();
 	
 protected:

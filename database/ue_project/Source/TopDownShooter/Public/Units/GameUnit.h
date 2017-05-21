@@ -132,6 +132,9 @@ protected:
 	UFUNCTION(NetMulticast, reliable)
 	void MulticastBeginProcessAction(EGameUnitAction ActionType, AActor* TargetActor);
 
+	UFUNCTION(NetMulticast, reliable)
+	void MulticastEndAction(EGameUnitAction ActionType);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category="TeamObject")
 	int TeamNum;
 

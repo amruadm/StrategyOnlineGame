@@ -6,6 +6,15 @@
 #include "Public/Buildings/Building.h"
 #include "Public/Resource/ResourceItem.h"
 
+ASimpleWorkerUnit::ASimpleWorkerUnit()
+{
+	OnBeginProcessAction.AddDynamic(this, &ASimpleWorkerUnit::OnBeginBuild);
+	OnEndAction.AddDynamic(this, &ASimpleWorkerUnit::OnEndBuild);
+
+	Attachment = CreateDefaultSubobject<UStaticMeshComponent>("AttachmentMesh");
+	Attachment->AttachTo(GetMesh());
+}
+
 void ASimpleWorkerUnit::BeginPlay()
 {
 	Super::BeginPlay();
@@ -18,6 +27,7 @@ void ASimpleWorkerUnit::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ASimpleWorkerUnit, Items);
 	DOREPLIFETIME(ASimpleWorkerUnit, TargetBuilding);
+	DOREPLIFETIME(ASimpleWorkerUnit, bProcessBuild);
 }
 
 void ASimpleWorkerUnit::PlaceResource(IStorageInterface* Storage, int Index)
@@ -102,15 +112,64 @@ void ASimpleWorkerUnit::ResizeInventory(int NewSize)
 
 bool ASimpleWorkerUnit::SetTargetBuilding(ABuilding* NewTarget)
 {
-	if (!NewTarget) return false;
 	if (TargetBuilding)
 	{
 		TargetBuilding->RemoveWorker(this);
 	}
-	if (NewTarget->AddWorker(this))
+	if (NewTarget)
 	{
-		TargetBuilding = NewTarget;
-		return true;
+		if (NewTarget->AddWorker(this))
+		{
+			TargetBuilding = NewTarget;
+			return true;
+		}
 	}
+	else
+		TargetBuilding = nullptr;
 	return false;
+}
+
+void ASimpleWorkerUnit::OnBeginBuild(EGameUnitAction ActionType)
+{
+	if (ActionType == EGameUnitAction::UA_Building)
+	{
+		bProcessBuild = true;
+	}
+}
+
+void ASimpleWorkerUnit::OnEndBuild(EGameUnitAction ActionType)
+{
+	if (ActionType == EGameUnitAction::UA_Building)
+	{
+		bProcessBuild = false;
+	}
+}
+
+void ASimpleWorkerUnit::OnRep_Items()
+{
+	if (!Attachment) return;
+	UStaticMesh* TargetMesh = nullptr;
+	if (USkeletalMeshComponent* Mesh = GetMesh())
+	{
+		if (Items.Num() > 1)
+		{
+			TargetMesh = DefaultAttachmentMesh;
+		}
+		else if(Items.Num() == 1)
+		{
+			if (Items[0].ItemClass)
+			{
+				if (UItem* ItemObject = Items[0].ItemClass->GetDefaultObject<UItem>())
+				{
+					TargetMesh = ItemObject->AttachmentMesh;
+				}
+			}
+		}
+	}
+	if (TargetMesh)
+	{
+		FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, false);
+		Attachment->AttachToComponent(GetMesh(), rules, AttachmentSocket);
+	}
+	Attachment->SetStaticMesh(TargetMesh);
 }

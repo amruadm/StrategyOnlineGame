@@ -17,14 +17,16 @@ public:
 
 	AWorkerUnit();
 
+	virtual void BeginPlay() override;
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Worker")
 	int GetEfficiency() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Worker")
-	void SetOwnExtractor(class ABuildingExtractor* Extractor);
+	void SetOwnExtractor(class AIndustrialBuilding* Extractor);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Worker")
-	ABuildingExtractor* GetOwnExtractor() const { return OwnExtractor; }
+	AIndustrialBuilding* GetOwnExtractor() const { return OwnExtractor; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Worker")
 	int GetWorkplaceIndex() const
@@ -37,28 +39,44 @@ public:
 		WorkplaceIndex = index;
 	}
 
-	void EquipTool(class AToolWeapon* NewTool);
+	UFUNCTION(BlueprintCallable, Category = "Worker")
+	void BeginExtract();
+
+	UFUNCTION(BlueprintCallable, Category = "Worker")
+	void EndExtract();
+
+	void EquipTool(TSubclassOf<class UWorkerToolItem> NewTool);
 
 	void EquipDefaultTool();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Worker")
 	FName WeaponSocketName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Worker")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Worker")
 	TSubclassOf<class AGameResource> ResourceClass;
 
 protected:
 
 	UPROPERTY(Replicated)
-	class ABuildingExtractor* OwnExtractor;
+	class AIndustrialBuilding* OwnExtractor;
+
+	UPROPERTY(Replicated)
+	class AGameResource* TargetResource;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Worker")
-	TSubclassOf<class AToolWeapon> DefaultToolClass;
+	TSubclassOf<class UWorkerToolItem> DefaultToolClass;
 
-	UPROPERTY(BlueprintReadOnly, Category="Worker")
-	class AToolWeapon* CurrentTool;
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentTool, Category="Worker")
+	TSubclassOf<class UWorkerToolItem> CurrentTool;
 
 	UPROPERTY(Replicated)
 	int WorkplaceIndex;
+
+private:
+
+	UStaticMeshComponent* WeaponAttachmentComponent;
+
+	UFUNCTION()
+	void OnRep_CurrentTool();
 
 };

@@ -13,6 +13,11 @@ AGameUnit::AGameUnit()
 	bReplicates = true;
 	bReplicateMovement = true;
 
+	if (USkeletalMeshComponent* Mesh = GetMesh())
+	{
+		Mesh->bReceivesDecals = false;
+	}
+
 	Strength = 1;
 	Agility = 1;
 	Intellect = 1;
@@ -113,19 +118,29 @@ void AGameUnit::MulticastBeginProcessAction_Implementation(EGameUnitAction Actio
 		if (UAnimInstance* AnimInstance = Mesh->GetAnimInstance())
 		{
 			UAnimSequenceBase* anim = Anims[ActionType][FMath::RandRange(0, Anims[ActionType].Num()-1)];
-
-			float animRate = 1.0f;
 			if (ActionType == EGameUnitAction::UA_Attack)
-				animRate = anim->GetPlayLength() / AttackSpeed;
+			{
+				float animRate = anim->GetPlayLength() / AttackSpeed;
 
-			AnimInstance->PlaySlotAnimationAsDynamicMontage(
-				anim,
-				"DefaultSlot", 0.25f, 0.25,
-				animRate
-			);
-			GetWorld()->GetTimerManager().SetTimer(ActionTimer, [this, ActionType]() {
-				EndAction(ActionType);
-			}, animRate, false, animRate);
+				AnimInstance->PlaySlotAnimationAsDynamicMontage(
+					anim,
+					DEFAULT_SLOT, 0.25f, 0.25,
+					animRate
+				);
+
+				GetWorld()->GetTimerManager().SetTimer(ActionTimer, [this, ActionType]() {
+					EndAction(ActionType);
+				}, animRate, false, animRate);
+			}
+			else
+			{
+				AnimInstance->PlaySlotAnimationAsDynamicMontage(
+					anim,
+					DEFAULT_SLOT, 0.25f, 0.25,
+					1.0f,
+					10000
+				);
+			}
 		}
 	}
 }
@@ -141,8 +156,20 @@ void AGameUnit::ProcessAction(EGameUnitAction ActionType)
 
 void AGameUnit::EndAction(EGameUnitAction ActionType)
 {
+	MulticastEndAction(ActionType);
+}
+
+void AGameUnit::MulticastEndAction_Implementation(EGameUnitAction ActionType)
+{
 	Target = nullptr;
 	OnEndAction.Broadcast(ActionType);
+	if (USkeletalMeshComponent* Mesh = GetMesh())
+	{
+		if (UAnimInstance* AnimInstance = Mesh->GetAnimInstance())
+		{
+			AnimInstance->StopSlotAnimation(0.25f, DEFAULT_SLOT);
+		}
+	}
 }
 
 void AGameUnit::PlaceTo(AActor* NewPlace)

@@ -30,6 +30,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildingHouse")
 	float SpawnTimeInterval;
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "BuildingHouse")
 	int MaxCitizens;
 
 	virtual void OnBuildingComplete_Implementation() override;

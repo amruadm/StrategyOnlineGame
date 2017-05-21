@@ -14,6 +14,8 @@ class TOPDOWNSHOOTER_API ASimpleWorkerUnit : public ACitizenUnit, public IWorker
 	
 public:
 
+	ASimpleWorkerUnit();
+
 	virtual void BeginPlay() override;
 
 	virtual void PlaceResource(class IStorageInterface* Storage, int index);
@@ -42,15 +44,43 @@ public:
 	{
 		return TargetBuilding;
 	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SimpleWorker")
+	bool IsProcessBuilding() const
+	{
+		return bProcessBuild;
+	}
 		
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category="SimpleWorker")
+	FName AttachmentSocket;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SimpleWorker")
+	UStaticMesh* DefaultAttachmentMesh;
 
 	UPROPERTY(Replicated)
 	class ABuilding* TargetBuilding;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category="SimpleWorker")
+	UPROPERTY(Replicated)
+	bool bProcessBuild;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Items, Category="SimpleWorker")
 	TArray<struct FItemCeil> Items;
 	
 	void ResizeInventory(int NewSize);
+
+	UFUNCTION()
+	void OnBeginBuild(EGameUnitAction ActionType);
+
+	UFUNCTION()
+	void OnEndBuild(EGameUnitAction ActionType);
+
+private:
+
+	UStaticMeshComponent* Attachment;
+
+	UFUNCTION()
+	void OnRep_Items();
 
 };

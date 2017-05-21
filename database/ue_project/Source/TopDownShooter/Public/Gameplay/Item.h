@@ -19,6 +19,9 @@ public:
 	int MaxCount;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+	UStaticMesh* AttachmentMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
 	UTexture2D* Icon;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")

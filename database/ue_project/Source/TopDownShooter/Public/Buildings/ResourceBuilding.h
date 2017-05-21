@@ -10,6 +10,8 @@ struct FResourceWorkplace: public FBuildingWorkplace
 {
 	GENERATED_BODY()
 
+	//TSubclassOf<>
+
 };
 
 
@@ -53,7 +55,7 @@ public:
 	//----------------------------------------------
 
 protected:
-
+	
 	TArray<FResourceWorkplace> Workplaces;
 
 	virtual void ResizeWorkplaces() override;

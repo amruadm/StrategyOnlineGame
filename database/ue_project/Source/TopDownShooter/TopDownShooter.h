@@ -34,5 +34,7 @@
 #define STENCIL_FRIENDLY 0
 #define STENCIL_ENEMY 1
 
+#define DEFAULT_SLOT "DefaultSlot"
+
 #endif
 

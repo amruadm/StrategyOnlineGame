@@ -16,6 +16,7 @@ void ABuildingHouse::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABuildingHouse, Citizens);
+	DOREPLIFETIME(ABuildingHouse, MaxCitizens);
 }
 
 void ABuildingHouse::BeginPlay()
@@ -25,25 +26,23 @@ void ABuildingHouse::BeginPlay()
 
 void ABuildingHouse::SpawnCitizen()
 {
-	if (HasAuthority())
+	if (Citizens.Num() < MaxCitizens && HasCompleted())
 	{
-		if (Citizens.Num() < MaxCitizens && HasCompleted())
+		ACitizenUnit* newUnit = GetWorld()->SpawnActor<ACitizenUnit>(CitizenClass);
+		if (newUnit)
 		{
-			ACitizenUnit* newUnit = GetWorld()->SpawnActor<ACitizenUnit>(CitizenClass);
-			if (newUnit)
-			{
-				newUnit->SetActorLocation(GetActorLocation() + SpawnPoint->GetComponentLocation());
-				newUnit->SetTeamNum(GetTeamNum());
-				newUnit->SetOwner(GetOwner());
-				newUnit->OwnHouse = this;
-				Citizens.Add(newUnit);
-			}
+			newUnit->SetActorLocation(GetActorLocation() + SpawnPoint->GetComponentLocation());
+			newUnit->SetTeamNum(GetTeamNum());
+			newUnit->SetOwner(GetOwner());
+			newUnit->OwnHouse = this;
+			Citizens.Add(newUnit);
 		}
 	}
 }
 
 void ABuildingHouse::OnBuildingComplete_Implementation()
 {
+	Super::OnBuildingComplete_Implementation();
 	if (HasAuthority())
 	{
 		FTimerDelegate SpawnDelegate = FTimerDelegate::CreateLambda([=]()

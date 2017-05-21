@@ -48,37 +48,6 @@ int AGameResource::GetExtractionCount(AWorkerUnit* Unit) const
 	return 1;
 }
 
-void AGameResource::BeginExtract(AWorkerUnit* Unit)
-{
-	if (Unit && CanExtract(Unit))
-	{
-		Unit->BeginProcessAction(ProcessAnimType, this);
-		FTimerHandle coolDownTimer;
-		FTimerDelegate SpawnDelegate = FTimerDelegate::CreateLambda([=]()
-		{
-			ProcessExtract(Unit);
-		});
-		GetWorld()->GetTimerManager().SetTimer(coolDownTimer, SpawnDelegate, GetExtractionTime(Unit), false);
-	}
-}
-
-void AGameResource::ProcessExtract(AWorkerUnit* Unit)
-{
-	if (Unit)
-	{
-
-		int cnt = GetExtractionCount(Unit);
-		FItemCeil item(cnt, ItemClass);
-		Unit->GiveResourceFrom(item);
-		Count = FMath::Max(0, Count - cnt);
-		Unit->ProcessAction(ProcessAnimType);
-		if (Count <= 0)
-		{
-			DieResource();
-		}
-	}
-}
-
 void AGameResource::DieResource()
 {
 	Destroy();

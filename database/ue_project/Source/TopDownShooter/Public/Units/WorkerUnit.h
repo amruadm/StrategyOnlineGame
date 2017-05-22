@@ -68,6 +68,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentTool, Category="Worker")
 	TSubclassOf<class UWorkerToolItem> CurrentTool;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Worker")
+	FName WeaponAttachmentSocket;
 
 	UPROPERTY(Replicated)
 	int WorkplaceIndex;

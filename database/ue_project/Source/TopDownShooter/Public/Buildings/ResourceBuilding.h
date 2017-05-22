@@ -38,6 +38,10 @@ public:
 	TArray<FResourceWorkplace> GetWorkplaces() const { return Workplaces; };
 
 	virtual void AddWorker(class AWorkerUnit* Unit) override;
+
+	virtual bool ContainsWorker(class AWorkerUnit* Unit) const override;
+
+	virtual bool CanWorkerAdded() const override;
 		
 	virtual int GetWorkplacesNum_Implementation() const override;
 

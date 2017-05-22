@@ -19,6 +19,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Worker")
 	int GetEfficiency() const;
 
@@ -40,7 +42,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Worker")
-	void BeginExtract();
+	void BeginExtract(class AGameResource* TargetResource);
 
 	UFUNCTION(BlueprintCallable, Category = "Worker")
 	void EndExtract();
@@ -60,9 +62,6 @@ protected:
 	UPROPERTY(Replicated)
 	class AIndustrialBuilding* OwnExtractor;
 
-	UPROPERTY(Replicated)
-	class AGameResource* TargetResource;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Worker")
 	TSubclassOf<class UWorkerToolItem> DefaultToolClass;
 
@@ -78,6 +77,10 @@ protected:
 private:
 
 	UStaticMeshComponent* WeaponAttachmentComponent;
+
+	EGameUnitAction ResourceActionType;
+
+	FTimerHandle ActionTimer;
 
 	UFUNCTION()
 	void OnRep_CurrentTool();

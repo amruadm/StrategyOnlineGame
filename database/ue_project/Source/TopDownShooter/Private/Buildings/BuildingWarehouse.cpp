@@ -62,11 +62,11 @@ int ABuildingWarehouse::PlaceItem(FItemCeil & Item)
 	int placed = 0;
 	for (FItemCeil & item : Resources)
 	{
-		if (item.ItemClass == Item.ItemClass)
+		if (item.ItemClass == Item.ItemClass || !item.ItemClass)
 		{
 			Item.TakeTo(item, Item.Count);
 			if (Item.HasEmpty()) break;
-		}		
+		}
 	}
 	return placed;
 }

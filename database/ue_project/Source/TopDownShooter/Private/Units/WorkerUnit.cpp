@@ -24,13 +24,18 @@ void AWorkerUnit::BeginPlay()
 		EquipDefaultTool();
 }
 
+void AWorkerUnit::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+}
+
 void AWorkerUnit::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWorkerUnit, OwnExtractor);
 	DOREPLIFETIME(AWorkerUnit, WorkplaceIndex);
 	DOREPLIFETIME(AWorkerUnit, CurrentTool);
-	DOREPLIFETIME(AWorkerUnit, TargetResource);
 }
 
 int AWorkerUnit::GetEfficiency_Implementation() const
@@ -40,17 +45,7 @@ int AWorkerUnit::GetEfficiency_Implementation() const
 
 void AWorkerUnit::SetOwnExtractor(AIndustrialBuilding* Extractor)
 {
-	if (!Extractor)
-	{
-		OwnExtractor = nullptr;
-		return;
-	}
-
-	if (Extractor->CanBePlaced(this))
-	{
-		OwnExtractor = Extractor;
-		Extractor->AddWorker(this);		
-	}
+	OwnExtractor = Extractor;
 }
 
 void AWorkerUnit::EquipTool(TSubclassOf<UWorkerToolItem> NewTool)
@@ -77,12 +72,25 @@ void AWorkerUnit::OnRep_CurrentTool()
 	WeaponAttachmentComponent->SetStaticMesh(TargetMesh);
 }
 
-void AWorkerUnit::BeginExtract()
+void AWorkerUnit::BeginExtract(AGameResource* TargetResource)
 {
-
+	if (TargetResource)
+	{
+		ResourceActionType = TargetResource->ProcessAnimType;
+		BeginProcessAction(ResourceActionType, TargetResource);
+		float TargetTime = TargetResource->GetExtractionTime(this);
+		GetWorld()->GetTimerManager().SetTimer(ActionTimer, [this, TargetResource]() {
+			if (TargetResource)
+			{
+				Items[0] = TargetResource->Extract(this);
+				Exp += TargetResource->GetExtractionExp(this);
+			}
+			EndExtract();
+		}, TargetTime, false, TargetTime);
+	}
 }
 
 void AWorkerUnit::EndExtract()
 {
-
+	EndAction(ResourceActionType);	
 }

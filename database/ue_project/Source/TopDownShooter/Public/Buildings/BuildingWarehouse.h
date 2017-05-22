@@ -31,6 +31,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Warehouse")
 	virtual int PlaceItem(FItemCeil & Item) override;
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure, Category = "Warehouse")
+	bool IsTakingOnly() const;
+	virtual bool IsTakingOnly_Implementation() const
+	{
+		return false;
+	}
+	
+
 	virtual void OnLevelChanged_Implementation(int NewLevel) override;
 
 	virtual FControlData GetUIData_Implementation() override;

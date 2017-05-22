@@ -11,7 +11,7 @@ struct FBuildingWorkplace
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	class AWorkerUnit* Worker;
+	class AWorkerUnit* Worker = nullptr;
 };
 
 /**
@@ -34,7 +34,16 @@ public:
 	virtual void AddWorker(class AWorkerUnit* Unit) {}
 
 	UFUNCTION(BlueprintCallable, Category = "IndustrialBuilding")
-	virtual bool ContainsWorker() const
+	void TakeCitizenToWork(class ACitizenUnit* Unit);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "IndustrialBuilding")
+	virtual bool ContainsWorker(class AWorkerUnit* Unit) const
+	{
+		return false;
+	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "IndustrialBuilding")
+	virtual bool CanWorkerAdded() const
 	{
 		return false;
 	}

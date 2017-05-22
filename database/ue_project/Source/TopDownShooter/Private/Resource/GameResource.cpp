@@ -10,14 +10,14 @@
 AGameResource::AGameResource()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	Count = FMath::RandRange(MinGenerateCount, MaxGenerateCount);
+	PrimaryActorTick.bCanEverTick = true;	
 }
 
 // Called when the game starts or when spawned
 void AGameResource::BeginPlay()
 {
 	Super::BeginPlay();
+	Count = FMath::RandRange(MinGenerateCount, MaxGenerateCount);
 }
 
 // Called every frame
@@ -33,7 +33,7 @@ void AGameResource::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Out
 	DOREPLIFETIME(AGameResource, Count);
 }
 
-float AGameResource::GetExtractionTime(AWorkerUnit* Unit) const
+float AGameResource::GetExtractionTime_Implementation(AWorkerUnit* Unit) const
 {
 	return 1.0f;
 }
@@ -43,9 +43,29 @@ bool AGameResource::CanExtract(AWorkerUnit* Unit) const
 	return true;
 }
 
-int AGameResource::GetExtractionCount(AWorkerUnit* Unit) const
+int AGameResource::GetExtractionCount_Implementation(AWorkerUnit* Unit) const
 {
 	return 1;
+}
+
+int AGameResource::GetExtractionExp_Implementation(AWorkerUnit* Unit) const
+{
+	return 1;
+}
+
+FItemCeil AGameResource::Extract(AWorkerUnit* Unit)
+{
+	FItemCeil ResultItem = FItemCeil::EmptyItem;
+	if (Count > 0)
+	{
+		ResultItem.ItemClass = ItemClass;
+		int Avaliable = FMath::Min(GetExtractionCount(Unit), Count);
+		ResultItem.Count = Avaliable;
+		Count -= Avaliable;
+		if (Count < 0)
+			DieResource();
+	}
+	return ResultItem;
 }
 
 void AGameResource::DieResource()

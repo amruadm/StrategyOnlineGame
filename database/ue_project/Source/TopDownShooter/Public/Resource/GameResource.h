@@ -17,6 +17,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameResource")
 	int MinExp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameResource")
+	EGameUnitAction ProcessAnimType;
 	
 	// Sets default values for this actor's properties
 	AGameResource();
@@ -27,14 +30,22 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	UFUNCTION(BlueprintCallable, Category = "GameResource")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure, Category = "GameResource")
 	float GetExtractionTime(class AWorkerUnit* Unit) const;
+	virtual float GetExtractionTime_Implementation(class AWorkerUnit* Unit) const;
 
-	UFUNCTION(BlueprintCallable, Category = "GameResource")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GameResource")
 	bool CanExtract(class AWorkerUnit* Unit) const;
 
-	UFUNCTION(BlueprintCallable, Category = "GameResource")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure, Category = "GameResource")
 	int GetExtractionCount(class AWorkerUnit* Unit) const;
+	virtual int GetExtractionCount_Implementation(class AWorkerUnit* Unit) const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintPure, Category = "GameResource")
+	int GetExtractionExp(class AWorkerUnit* Unit) const;
+	virtual int GetExtractionExp_Implementation(class AWorkerUnit* Unit) const;
+
+	FItemCeil Extract(class AWorkerUnit* Unit);
 
 	void DieResource();
 	
@@ -48,8 +59,5 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameResource")
 	int MaxGenerateCount;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameResource")
-	EGameUnitAction ProcessAnimType;
 	
 };

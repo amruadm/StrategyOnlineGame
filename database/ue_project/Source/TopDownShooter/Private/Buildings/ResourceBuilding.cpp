@@ -8,6 +8,7 @@
 void AResourceBuilding::BeginPlay()
 {
 	Super::BeginPlay();
+	ResizeWorkplaces();
 }
 
 int AResourceBuilding::GetWorkplacesNum_Implementation() const
@@ -22,10 +23,33 @@ void AResourceBuilding::AddWorker(AWorkerUnit* Unit)
 		FResourceWorkplace & workplace = Workplaces[i];
 		if (!workplace.Worker)
 		{
+			workplace.Worker = Unit;
 			Unit->SetWorkplaceIndex(i);
+			Unit->SetOwnExtractor(this);
 			return;
 		}
 	}
+}
+
+bool AResourceBuilding::ContainsWorker(class AWorkerUnit* Unit) const
+{
+	for (const FResourceWorkplace & work : Workplaces)
+	{
+		if (work.Worker == Unit) return true;
+	}
+	return false;
+}
+
+bool AResourceBuilding::CanWorkerAdded() const
+{
+	for (const FResourceWorkplace & work : Workplaces)
+	{
+		if (!work.Worker)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void AResourceBuilding::PlaceUnit(class AGameUnit* Unit)
